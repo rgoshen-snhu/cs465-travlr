@@ -1,4 +1,4 @@
-/* Get homepage */
+/* GET homepage */
 const index = function (req, res) {
     res.render('index', { title: 'Tavlr Getaways' });
 };
