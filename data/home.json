@@ -1,0 +1,17 @@
+{
+    "hero": {
+        "image": "sea-sound.jpg",
+        "headline": "Enjoy the Summer with Us!",
+        "body": "Welcome to Travlr Getaways — your premier destination for unforgettable beach resort experiences. Explore our rooms, meals, and travel packages."
+    },
+    "testimonial": {
+        "quote": "In hac habitasse platea dictumst. Integer purus justo, egestas eu consectetur eu, cursus in tortor. Quisque nec nunc ac mi ultrices iaculis. Aenean quis elit mauris, nec vestibulum lorem.",
+        "author": "Juan De La Cruz",
+        "url": "/"
+    },
+    "sidebar": [
+        { "image": "rooms.png",     "url": "/rooms"  },
+        { "image": "dive-site.png", "url": "/travel" },
+        { "image": "food.png",      "url": "/meals"  }
+    ]
+}
