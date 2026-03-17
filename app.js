@@ -7,6 +7,11 @@ const logger = require('morgan');
 const indexRouter = require('./app-server/routes/index');
 const usersRouter = require('./app-server/routes/users');
 const travelRouter = require('./app-server/routes/travel');
+const roomsRouter = require('./app-server/routes/rooms');
+const mealsRouter = require('./app-server/routes/meals');
+const newsRouter = require('./app-server/routes/news');
+const aboutRouter = require('./app-server/routes/about');
+const contactRouter = require('./app-server/routes/contact');
 const handlebars = require('hbs');
 
 const app = express();
@@ -17,6 +22,7 @@ app.set('views', path.join(__dirname, 'app-server', 'views'));
 handlebars.registerPartials(path.join(__dirname, 'app-server', 'views', 'partials'));
 
 app.set('view engine', 'hbs');
+app.set('view options', { layout: 'layouts/layout' });
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -27,6 +33,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/travel', travelRouter);
+app.use('/rooms', roomsRouter);
+app.use('/meals', mealsRouter);
+app.use('/news', newsRouter);
+app.use('/about', aboutRouter);
+app.use('/contact', contactRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
