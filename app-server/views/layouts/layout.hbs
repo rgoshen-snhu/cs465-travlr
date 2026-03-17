@@ -1,14 +1,21 @@
 <!DOCTYPE html>
+<!-- Website template by freewebsitetemplates.com -->
 <html>
 
 <head>
-  <meta charset="UTF-8">
-  <title>{{title}}</title>
-  <link rel='stylesheet' href='/css/style.css' type="text/css" />
+	<meta charset="UTF-8">
+	<title>{{title}}</title>
+	<link rel="stylesheet" href="/css/style.css" type="text/css">
 </head>
 
 <body>
-  {{{body}}}
+	<div id="background">
+		<div id="page">
+			{{> header}}
+			{{{body}}}
+		</div>
+		{{> footer}}
+	</div>
 </body>
 
 </html>

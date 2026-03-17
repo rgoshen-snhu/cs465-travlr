@@ -17,6 +17,7 @@ app.set('views', path.join(__dirname, 'app-server', 'views'));
 handlebars.registerPartials(path.join(__dirname, 'app-server', 'views', 'partials'));
 
 app.set('view engine', 'hbs');
+app.set('view options', { layout: 'layouts/layout' });
 
 app.use(logger('dev'));
 app.use(express.json());
