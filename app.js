@@ -4,6 +4,10 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+// Side-effect import — opens the MongoDB connection and registers
+// shutdown handlers so the DB is ready before any route handles a request
+require('./app_server/models/db');
+
 const indexRouter = require('./app-server/routes/index');
 const usersRouter = require('./app-server/routes/users');
 const travelRouter = require('./app-server/routes/travel');
