@@ -4,25 +4,25 @@
     </div>
     <div id="navigation">
         <ul>
-            <li>
+            <li {{#if (eq navPage 'home')}}class="selected"{{/if}}>
                 <a href="/">Home</a>
             </li>
-            <li class="selected">
+            <li {{#if (eq navPage 'travel')}}class="selected"{{/if}}>
                 <a href="/travel">Travel</a>
             </li>
-            <li>
+            <li {{#if (eq navPage 'rooms')}}class="selected"{{/if}}>
                 <a href="/rooms">Rooms</a>
             </li>
-            <li>
+            <li {{#if (eq navPage 'meals')}}class="selected"{{/if}}>
                 <a href="/meals">Meals</a>
             </li>
-            <li>
+            <li {{#if (eq navPage 'news')}}class="selected"{{/if}}>
                 <a href="/news">News</a>
             </li>
-            <li>
+            <li {{#if (eq navPage 'about')}}class="selected"{{/if}}>
                 <a href="/about">About</a>
             </li>
-            <li>
+            <li {{#if (eq navPage 'contact')}}class="selected"{{/if}}>
                 <a href="/contact">Contact</a>
             </li>
         </ul>

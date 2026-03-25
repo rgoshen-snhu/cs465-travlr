@@ -6,7 +6,7 @@ const { latestNews, vacationTips, featured } = JSON.parse(
 
 /* GET news view */
 const news = function (req, res) {
-    res.render('news', { title: 'Travlr Getaways - News', latestNews, vacationTips, featured });
+    res.render('news', { title: 'Travlr Getaways - News', navPage: 'news', latestNews, vacationTips, featured });
 };
 
 module.exports = { news };

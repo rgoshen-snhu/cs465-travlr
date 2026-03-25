@@ -20,6 +20,10 @@ const app = express();
 app.set('views', path.join(__dirname, 'app-server', 'views'));
 // Register the partials directory with Handlebars (https://npmjs.com/package/hbs)
 handlebars.registerPartials(path.join(__dirname, 'app-server', 'views', 'partials'));
+// Custom Handlebars helper: {{#if (eq navPage 'travel')}}
+// Handlebars has no built-in equality check, so this helper lets templates
+// compare two values. Used in header.hbs to highlight the active nav item.
+handlebars.registerHelper('eq', (a, b) => a === b);
 
 app.set('view engine', 'hbs');
 app.set('view options', { layout: 'layouts/layout' });
