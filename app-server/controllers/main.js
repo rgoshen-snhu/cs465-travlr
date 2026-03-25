@@ -6,7 +6,7 @@ const blogPosts = latestNews.slice(0, 2);
 
 /* GET homepage */
 const index = function (req, res) {
-    res.render('index', { title: 'Tavlr Getaways', hero, blogPosts, testimonial, sidebar });
+    res.render('index', { title: 'Tavlr Getaways', navPage: 'home', hero, blogPosts, testimonial, sidebar });
 };
 
 module.exports = { index };
