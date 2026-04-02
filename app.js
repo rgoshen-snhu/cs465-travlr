@@ -4,9 +4,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-// Side-effect import — opens the MongoDB connection and registers
-// shutdown handlers so the DB is ready before any route handles a request
-require('./app_server/models/db');
+// Bring in the database connection, which also registers the Mongoose models
+require('./app-api/models/db');
 
 const indexRouter = require('./app-server/routes/index');
 const usersRouter = require('./app-server/routes/users');
@@ -16,6 +15,7 @@ const mealsRouter = require('./app-server/routes/meals');
 const newsRouter = require('./app-server/routes/news');
 const aboutRouter = require('./app-server/routes/about');
 const contactRouter = require('./app-server/routes/contact');
+const apiRouter = require('./app-api/routes/index');
 const handlebars = require('hbs');
 
 const app = express();
@@ -38,6 +38,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Wireup routes to controllers
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/travel', travelRouter);
@@ -46,6 +47,7 @@ app.use('/meals', mealsRouter);
 app.use('/news', newsRouter);
 app.use('/about', aboutRouter);
 app.use('/contact', contactRouter);
+app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
