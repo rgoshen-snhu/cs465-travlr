@@ -10,7 +10,6 @@ const tripsList = async (req, res) => {
     try {
         const tripsList = await Model.find(); // returns all records, no filter applied
 
-        // console.log(tripsList); // DEBUG: remove me after confirming data is being retrieved correctly
         if (!tripsList) {
             // If no trips are found, return a 404 status with a message
             return res.status(404).json({ message: 'No trips found' });
@@ -28,7 +27,6 @@ const tripsFindByCode = async (req, res) => {
     try {
         const trip = await Model.findOne({ code: req.params.tripCode });
 
-        // console.log(trip); // DEBUG: remove me after confirming data is being retrieved correctly
         if (!trip) {
             return res.status(404).json({ message: 'Trip not found' });
         }
