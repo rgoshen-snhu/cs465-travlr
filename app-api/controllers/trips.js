@@ -21,6 +21,25 @@ const tripsList = async (req, res) => {
     }
 };
 
+// GET: /trips/:tripCode - get a specific trip by code
+// Regardless of outcomes, response must include HTML status code
+// and JSON message to the requesting client
+const tripsFindByCode = async (req, res) => {
+    try {
+        const trip = await Model.findOne({ code: req.params.tripCode });
+
+        console.log(trip); // DEBUG: remove me after confirming data is being retrieved correctly
+        if (!trip) {
+            return res.status(404).json({ message: 'Trip not found' });
+        }
+
+        res.status(200).json(trip);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching trip', error: err });
+    }
+};
+
 module.exports = {
-    tripsList
+    tripsList,
+    tripsFindByCode
 };
