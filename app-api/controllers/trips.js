@@ -20,6 +20,34 @@ const tripsList = async (req, res) => {
     }
 };
 
+// POST: /trips - create a new trip (not implemented yet)
+// regardless of outcomes, response must include HTML status code 
+// and JSON message to the requesting client
+const tripsAddTrip = async (req, res) => {
+    const newTrip = new Trip({
+        code: req.body.code,
+        name: req.body.name,
+        length: req.body.length,
+        start: req.body.start,
+        resort: req.body.resort,
+        perPerson: req.body.perPerson,
+        image: req.body.image,
+        description: req.body.description
+    });
+
+    try {
+        const savedTrip = await newTrip.save();
+        if (!savedTrip) {
+            return res.status(400).json({ err });
+        } else {
+            res.status(201).json(savedTrip);
+        }
+    } catch (err) {
+        res.status(400).json({ message: 'Error creating trip', error: err });
+    }
+
+};
+
 // GET: /trips/:tripCode - get a specific trip by code
 // Regardless of outcomes, response must include HTML status code
 // and JSON message to the requesting client
@@ -39,5 +67,6 @@ const tripsFindByCode = async (req, res) => {
 
 module.exports = {
     tripsList,
+    tripsAddTrip,
     tripsFindByCode
 };
