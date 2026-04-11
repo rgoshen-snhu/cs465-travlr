@@ -65,8 +65,40 @@ const tripsFindByCode = async (req, res) => {
     }
 };
 
+// PUT: /trips/:tripCode - update a specific trip by code
+// Regardless of outcomes, response must include HTML status code
+// and JSON message to the requesting client
+
+const tripsUpdateTrip = async (req, res) => {
+    try {
+        const updatedTrip = await Model.findOneAndUpdate(
+            { code: req.params.tripCode },
+            {
+                'code': req.body.code,
+                'name': req.body.name,
+                'length': req.body.length,
+                'start': req.body.start,
+                'resort': req.body.resort,
+                'perPerson': req.body.perPerson,
+                'image': req.body.image,
+                'description': req.body.description
+            },
+            { new: true }
+        );
+
+        if (!updatedTrip) {
+            return res.status(404).json({ message: 'Trip not found' });
+        }
+
+        res.status(201).json(updatedTrip);
+    } catch (err) {
+        res.status(400).json({ message: 'Error updating trip', error: err });
+    }
+};
+
 module.exports = {
     tripsList,
     tripsAddTrip,
-    tripsFindByCode
+    tripsFindByCode,
+    tripsUpdateTrip
 };

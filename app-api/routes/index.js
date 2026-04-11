@@ -11,6 +11,7 @@ router
 // Define the route for getting a specific trip by code
 router
     .route('/trips/:tripCode')
-    .get(tripsController.tripsFindByCode);
+    .get(tripsController.tripsFindByCode) // GET: /trips/:tripCode - get a specific trip by code
+    .put(tripsController.tripsUpdateTrip); // PUT: /trips/:tripCode - update a specific trip by code (not implemented yet)
 
 module.exports = router;
