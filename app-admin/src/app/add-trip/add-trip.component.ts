@@ -12,7 +12,7 @@ import { TripDataService } from '../services/trip-data.service';
   styleUrl: './add-trip.component.css'
 })
 export class AddTripComponent implements OnInit {
-  addForm!: FormGroup;
+  public addForm!: FormGroup;
   submitted = false;
 
   constructor(
