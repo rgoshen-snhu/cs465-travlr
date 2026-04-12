@@ -7,8 +7,8 @@ const authController = require('../controllers/authentication');
 // Define the route for user registration and login
 router.route('/register')
     .post(authController.register); // POST: /register - register a new user
-// router.route('/login')
-//     .post(authController.login); // POST: /login - login a user (not implemented yet)
+router.route('/login')
+    .post(authController.login); // POST: /login - login a user
 
 // Define the route for getting the list of trips
 router

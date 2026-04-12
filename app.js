@@ -9,6 +9,10 @@ require('dotenv').config();
 // Bring in the database connection, which also registers the Mongoose models
 require('./app-api/models/db');
 
+// Wire in our authentication module
+var passport = require('passport');
+require('./app-api/config/passport');
+
 const indexRouter = require('./app-server/routes/index');
 const usersRouter = require('./app-server/routes/users');
 const travelRouter = require('./app-server/routes/travel');
@@ -31,6 +35,9 @@ handlebars.registerPartials(path.join(__dirname, 'app-server', 'views', 'partial
 // compare two values. Used in header.hbs to highlight the active nav item.
 handlebars.registerHelper('eq', (a, b) => a === b);
 
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(passport.initialize());
+
 app.set('view engine', 'hbs');
 app.set('view options', { layout: 'layouts/layout' });
 
@@ -43,7 +50,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Enable CORS
 app.use('/api', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'http://localhost:4200'); // Adjust this to your Angular app's URL
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow necessary headers
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization'); // Allow necessary headers
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Allow necessary HTTP methods
   next();
 });
@@ -62,6 +69,15 @@ app.use('/api', apiRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
+});
+
+// Catch unauthorized error and create 401
+app.use((err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    res
+      .status(401)
+      .json({ "message": err.name + ": " + err.message });
+  }
 });
 
 // error handler
