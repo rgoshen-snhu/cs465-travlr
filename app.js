@@ -4,6 +4,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+require('dotenv').config();
+
 // Bring in the database connection, which also registers the Mongoose models
 require('./app-api/models/db');
 
