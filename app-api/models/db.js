@@ -72,4 +72,9 @@ connect();
 
 // Bring in the Mongoose models
 require('./travlr');
+require('./room');
+require('./meal');
+require('./newsarticle');
+require('./homecontent');
+require('./user');
 module.exports = mongoose;
