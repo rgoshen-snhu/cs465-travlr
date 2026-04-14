@@ -20,8 +20,8 @@ const tripsList = async (req, res) => {
     }
 };
 
-// POST: /trips - create a new trip (not implemented yet)
-// regardless of outcomes, response must include HTML status code 
+// POST: /trips - create a new trip
+// Regardless of outcomes, response must include HTML status code
 // and JSON message to the requesting client
 const tripsAddTrip = async (req, res) => {
     const newTrip = new Trip({
@@ -90,7 +90,7 @@ const tripsUpdateTrip = async (req, res) => {
             return res.status(404).json({ message: 'Trip not found' });
         }
 
-        res.status(201).json(updatedTrip);
+        res.status(200).json(updatedTrip);
     } catch (err) {
         res.status(400).json({ message: 'Error updating trip', error: err });
     }
