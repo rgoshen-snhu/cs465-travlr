@@ -4,6 +4,7 @@ const Room = require('./room');
 const Meal = require('./meal');
 const NewsArticle = require('./newsarticle');
 const HomeContent = require('./homecontent');
+const User = require('./user');
 
 const fs = require('fs');
 
@@ -70,6 +71,23 @@ const seedDB = async () => {
     await HomeContent.deleteMany({});
     await HomeContent.insertMany([homeData]);
     console.log('HomeContent seeded');
+
+    // Seed admin user if one does not already exist.
+    // Credentials: admin@travlr.com / Admin1234!
+    // Change the password after first login in a real deployment.
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (!existingAdmin) {
+        const admin = new User({
+            name: 'Travlr Admin',
+            email: 'admin@travlr.com',
+            role: 'admin',
+        });
+        admin.setPassword('Admin1234!');
+        await admin.save();
+        console.log('Admin user seeded: admin@travlr.com / Admin1234!');
+    } else {
+        console.log('Admin user already exists, skipping.');
+    }
 
     console.log('Database seeded!');
 };
