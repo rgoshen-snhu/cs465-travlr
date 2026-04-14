@@ -77,9 +77,35 @@ can fetch data through the API loopback instead of reading flat JSON files.
 
 ---
 
+## [2026-04-13] Feature: Phase 3 — Wire All Public Controllers to API
+
+**Objective:**
+Eliminate every `fs.readFileSync` call from the public-site controllers.
+All data must reach HBS views through the API loopback, matching the pattern
+in `app-server/controllers/travel.js`.
+
+**Approach:**
+- Rewrite rooms, meals, news, and main controllers to use async fetch()
+- News controller uses Promise.all for three parallel fetches (latestNews,
+  vacationTips, featured); maps publishedAt → date for HBS template
+- Home controller fetches /api/home and /api/news?type=latestNews in parallel;
+  maps publishedAt → date on blog posts and takes first 2
+
+**Tests:**
+- All four pages (/, /rooms, /meals, /news) return 200 with live MongoDB content
+- grep confirms no readFileSync in any app-server/controllers file
+
+**Risks & Tradeoffs:**
+- Three parallel fetches on /news adds minor latency vs. one DB query;
+  acceptable for course scope and keeps controller logic consistent
+- publishedAt/date field mismatch handled in controller to avoid template changes
+
+**Status:** COMPLETE
+
+---
+
 ## Upcoming Phases
 
-- **Phase 3** — Rewrite public controllers to fetch() loopback; eliminate fs.readFileSync
 - **Phase 4** — Admin SPA verify/fix; seed admin user
 - **Phase 5** — Customer auth (/login, /signup, /logout; JWT HttpOnly cookie)
 - **Phase 6** — Hardening, docs, SDD testing walkthrough, v1.0.0 tag
