@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication.service';
+import { TripDataService } from '../services/trip-data.service';
 import { User } from '../models/user';
 
 @Component({
@@ -15,40 +16,39 @@ import { User } from '../models/user';
 export class LoginComponent {
   public formError: string = '';
   submitted = false;
-  public credentials = { name: '', email: '', password: '' };
+  public credentials = { email: '', password: '' };
 
-  constructor(private router: Router, private authenticationService: AuthenticationService) { }
+  constructor(
+    private router: Router,
+    private authenticationService: AuthenticationService,
+    private tripDataService: TripDataService
+  ) { }
 
   ngOnInit(): void { }
 
   public onLoginSubmit(): void {
     this.formError = '';
-    if (!this.credentials.email || !this.credentials.password || !this.credentials.name) {
-      this.formError = 'All fields are required, please try again.';
-      this.router.navigateByUrl('#'); // Return to login page
+    if (!this.credentials.email || !this.credentials.password) {
+      this.formError = 'Email and password are required.';
     } else {
       this.doLogin();
     }
   }
 
   private doLogin(): void {
-    let newUser = { name: this.credentials.name, email: this.credentials.email } as User;
-
-    console.log('LoginComponent::doLogin');
-    console.log(this.credentials);
-
-    this.authenticationService.login(newUser, this.credentials.password);
-
-    if (this.authenticationService.isLoggedIn()) {
-      console.log('Router::Direct');
-      this.router.navigate(['']);
-    } else {
-      const timer = setTimeout(() => {
-        if (this.authenticationService.isLoggedIn()) {
-          console.log('Router::Pause');
+    const user = { email: this.credentials.email } as User;
+    this.tripDataService.login(user, this.credentials.password).subscribe({
+      next: (response: any) => {
+        if (response && response.token) {
+          this.authenticationService.saveToken(response.token);
           this.router.navigate(['']);
+        } else {
+          this.formError = 'Login failed. Please try again.';
         }
-      }, 3000);
-    }
+      },
+      error: () => {
+        this.formError = 'Invalid email or password.';
+      }
+    });
   }
 }

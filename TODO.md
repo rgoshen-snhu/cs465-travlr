@@ -104,8 +104,33 @@ in `app-server/controllers/travel.js`.
 
 ---
 
+## [2026-04-13] Feature: Phase 4 — Admin SPA: Complete & Verify
+
+**Objective:**
+Confirm the Angular admin SPA is fully functional end-to-end: login, list trips,
+add a trip, edit a trip, and logout. Fix any broken wiring without redesigning.
+
+**Approach:**
+- Build SPA to check for compile errors (none found)
+- Fix AuthResponse constructor, JWT interceptor URL matching, login form name
+  field, and async race condition in doLogin()
+- Confirm add-trip and edit-trip call correct API endpoints (already wired)
+- Seed admin user (admin@travlr.com / Admin1234!) idempotently in seed.js
+
+**Tests:**
+- `npx ng build` exits 0 before and after fixes
+- `npm run seed` creates admin user on first run, skips on subsequent runs
+- Admin can log in, list trips, add a trip, edit a trip, and log out
+
+**Risks & Tradeoffs:**
+- Admin credentials are in seed.js in plain text — acceptable for development;
+  must be changed before any production deployment
+
+**Status:** COMPLETE
+
+---
+
 ## Upcoming Phases
 
-- **Phase 4** — Admin SPA verify/fix; seed admin user
 - **Phase 5** — Customer auth (/login, /signup, /logout; JWT HttpOnly cookie)
 - **Phase 6** — Hardening, docs, SDD testing walkthrough, v1.0.0 tag
