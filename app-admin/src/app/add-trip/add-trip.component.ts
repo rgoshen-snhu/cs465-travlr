@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TripDataService } from '../services/trip-data.service';
 
 @Component({
   selector: 'app-add-trip',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './add-trip.component.html',
   styleUrl: './add-trip.component.css'
 })
@@ -19,14 +19,15 @@ export class AddTripComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private tripService: TripDataService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.addForm = this.formBuilder.group({
       _id: [],
       code: ['', Validators.required],
       name: ['', Validators.required],
-      length: ['', Validators.required],
+      nights: [3, Validators.required],
+      days: [3, Validators.required],
       start: ['', Validators.required],
       resort: ['', Validators.required],
       perPerson: ['', Validators.required],
@@ -35,23 +36,19 @@ export class AddTripComponent implements OnInit {
     });
   }
 
-  public onSubmit() {
+  public onSubmit(): void {
     this.submitted = true;
 
     if (this.addForm.valid) {
-      this.tripService.addTrip(this.addForm.value)
-        .subscribe({
-          next: (data: any) => {
-            console.log(data);
-            this.router.navigate(['']);
-          },
-          error: (error: any) => {
-            console.error('Error: ', error);
-          }
-        });
+      const { nights, days, ...rest } = this.addForm.value;
+      const payload = { ...rest, length: `${nights} nights / ${days} days` };
+
+      this.tripService.addTrip(payload).subscribe({
+        next: () => this.router.navigate(['']),
+        error: (error: any) => console.error('Error adding trip:', error)
+      });
     }
   }
 
-  // get the form short name to access form fields
   get f() { return this.addForm.controls; }
 }
