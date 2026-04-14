@@ -38,11 +38,10 @@ if (process.platform === 'win32') {
 
 // Ensures the DB connection is properly closed before the process exits,
 // preventing data corruption and connection pool leaks
-const gracefulShutdown = (msg, callback) => {
-    mongoose.connection.close(() => {
-        console.log(`Mongoose disconnected through ${msg}`);
-        callback();
-    });
+const gracefulShutdown = async (msg, callback) => {
+    await mongoose.connection.close();
+    console.log(`Mongoose disconnected through ${msg}`);
+    callback();
 };
 
 // SIGUSR2 is sent by nodemon on restart — use `once` so the handler

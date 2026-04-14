@@ -72,3 +72,29 @@ by `articleType` so the API can filter with a simple query parameter.
 
 **References:**
 - PLAN.md: Phase 1 — Migrate All Public Data to MongoDB
+
+---
+
+## [2026-04-13] Phase 2 Complete — Complete the API Layer
+
+**Change Type:** Feature / Refactor
+**Scope:** Phase 2 — API Layer
+
+**Summary:**
+Added four public GET endpoints (`/api/rooms`, `/api/meals`, `/api/news`,
+`/api/home`) with one controller file per resource. `GET /api/news` supports
+an optional `?type=` query parameter to filter by `articleType`. Confirmed
+`tripsAddTrip` and `tripsUpdateTrip` were already implemented; corrected the
+HTTP status on PUT from `201 Created` to `200 OK`. Fixed a Mongoose 9
+compatibility bug in `db.js` where `connection.close()` no longer accepts a
+callback — updated to async/await. All error responses normalized to
+`{ message }` with `error.message` (no raw error objects or stack traces).
+
+**Issues encountered & resolution:**
+- Port 3000 was already occupied during smoke testing; killed the stale
+  process and retested successfully.
+- `connection.close()` threw on SIGTERM in Mongoose 9 — fixed in the same
+  refactor commit.
+
+**References:**
+- PLAN.md: Phase 2 — Complete the API Layer
