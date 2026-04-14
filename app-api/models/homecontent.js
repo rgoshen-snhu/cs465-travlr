@@ -8,8 +8,8 @@ const homeContentSchema = new mongoose.Schema({
     body: { type: String, required: true },
   },
   testimonial: {
-    quote: { type: String, required: true },
-    author: { type: String, required: true },
+    quote: { type: String },
+    author: { type: String },
     url: { type: String },
   },
   sidebar: [
