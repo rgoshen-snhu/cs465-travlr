@@ -1,51 +1,46 @@
-const mongoose = require('mongoose');
 const User = require('../models/user');
 const passport = require('passport');
 
 const register = async (req, res) => {
-    // Validate message to insure all parameters are present
+    // Ensure all required fields are present
     if (!req.body.name || !req.body.email || !req.body.password) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
     const user = new User({
-        name: req.body.name, // Set User name
-        email: req.body.email, // Set User email
-        password: '' // Start with empty password
+        name: req.body.name,
+        email: req.body.email,
     });
 
-    user.setPassword(req.body.password); // Set user password
+    user.setPassword(req.body.password);
     const response = await user.save();
 
     if (!response) {
-        // Database return no user
         return res.status(400).json({ message: 'Failed to save user' });
-    } else {
-        // Return new user token
-        const token = user.generateJWT();
-        return res.status(200).json(token);
     }
+
+    // Return token in same shape as login for consistent API contract
+    return res.status(200).json({ token: user.generateJWT() });
 }
 
 const login = async (req, res) => {
-    // Validate message to insure email and password are present
+    // Ensure email and password are present
     if (!req.body.email || !req.body.password) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Delegate authenitcation to passport module
+    // Delegate authentication to passport module
     passport.authenticate('local', (err, user, info) => {
         if (err) {
-            // Error in Authentication Process
-            return res.status(404).json(err);
+            // Unexpected error during authentication process
+            return res.status(500).json({ message: 'Authentication error' });
         }
         if (user) {
-            // Auth succeeded - generate JWT and return to caller
+            // Auth succeeded — generate JWT and return to caller
             return res.status(200).json({ token: user.generateJWT() });
-        } else {
-            // Auth failed return error
-            return res.status(401).json(info);
         }
+        // Auth failed — return passport info message
+        return res.status(401).json(info);
     })(req, res);
 }
 
