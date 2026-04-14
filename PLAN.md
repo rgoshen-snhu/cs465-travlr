@@ -2,7 +2,9 @@
 
 > **Scope.** Refactor the current codebase into the end-to-end product described in `docs/REQUIREMENTS.md`, using the wireframe as the UI contract and the SDD as the architectural contract.
 >
-> **Working method.** GitFlow branches, atomic Conventional Commits, strict TDD on new logic, and per-phase documentation discipline. Phases are sequential; tasks within a phase are atomic commits.
+> **Working method.** Feature branches off `final-project` (treated as `main`), atomic Conventional Commits, functional testing aligned with the course rubric, and per-phase documentation discipline. Phases are sequential; tasks within a phase are atomic commits.
+>
+> **Branch model.** `final-project` is the integration branch (acts as `main`). Each phase lives on `feature/phase-N-<slug>`, branched from `final-project` and merged back via PR. No separate `develop` branch is needed.
 
 ---
 
@@ -37,14 +39,19 @@ Every phase must be read against these sources. If a phase conflicts with any of
    - **Angular components (`app-admin/src/app/**`)** — Angular 17 **standalone** components, `CommonModule` + `FormsModule`/`ReactiveFormsModule` imports, `templateUrl` + `styleUrl` pair, services under `services/`, models under `models/`, `BROWSER_STORAGE` injection token for `localStorage` access.
    - **Config** — read via `process.env` with a safe local default, consistent with `app-api/models/db.js` and `bin/www`.
    - **Commit style** — Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`, `perf:`), atomic, no AI co-author tags (per `AI_RULES.md` §2).
-2. **TDD.** Red → Green → Refactor on every new unit of behavior (`AI_RULES.md` §1). Server code uses Jest; the Angular SPA continues with Karma + Jasmine.
+2. **Testing (aligned with course rubric).** The rubric criterion "Testing" (15 pts) requires demonstrating the application can store and retrieve data via input/output — this is **functional testing**, not automated TDD. The SDD reinforces this: "describe the process of testing to make sure the SPA is working with the API to GET and PUT data in the database." Each phase's testing deliverable is therefore a documented, reproducible functional test (Postman, browser, or a minimal Node script) showing the feature works end-to-end. Automated Jest/Supertest unit tests are welcome where they add value but are **not required by the rubric**.
 3. **Per-phase deliverables.**
    - Close every task inside a phase as an atomic commit.
    - At phase completion, update **`SUMMARY.md`** with `What was done`, `How`, `Issues encountered & resolution`.
    - Final commit of the phase is `docs(summary): phase N complete — <title>` and updates SUMMARY.md.
-   - Open a PR from `feature/phase-N-<slug>` into `develop` (per GitFlow in `AI_RULES.md` §2).
+   - Open a PR from `feature/phase-N-<slug>` into `final-project`.
 4. **Never break GET `/api/trips`.** The server-side public site and the Angular SPA both read from it in parallel; every change must keep the read path live.
 5. **Stop and ask** if a phase reveals a contradiction with `docs/REQUIREMENTS.md` §11 Open Questions — do not silently invent a product decision.
+6. **Available tooling for execution.**
+   - **GitHub CLI (`gh`)** — create branches, open PRs, view CI status.
+   - **MongoDB MCP** — inspect live collections, verify seed data, run ad-hoc queries against the local database without leaving the editor.
+   - **Context7 MCP** — fetch up-to-date docs for Express, Mongoose, Angular 17, and other dependencies before writing code.
+   - **Playwright MCP** — drive a real browser for functional verification steps; use instead of manual browser checks where repeatability matters.
 
 ---
 
@@ -84,33 +91,29 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 
 ## Phase 0 — Baseline, Tooling, SUMMARY Scaffolding
 
-**Goal.** Make the repo ready for disciplined iterative work: predictable tests, lint, and the documentation loop described in Ground Rules §3.
+**Goal.** Make the repo ready for disciplined iterative work: consistent lint config, documentation scaffolding, and a clean environment baseline. Branch from `final-project`.
 
 **In scope.**
 
-- Cut `develop` from `main` if not present.
-- Create `feature/phase-0-baseline`.
-- Add Jest for backend tests (`tests/` directory or `*.spec.js` beside source).
-- Confirm Angular Karma/Jasmine still runs (`cd app-admin && npm test`).
-- Add ESLint + Prettier configs (JS/TS) and `markdownlint` config (at minimum to quiet the warnings in current docs).
-- Seed `SUMMARY.md` and `TODO.md` at repo root with the templates from `AI_RULES.md` §11.5.
-- Make sure `.env.example` stays in sync with env reads and `.env` is gitignored.
+- Create `feature/phase-0-baseline` from `final-project`.
+- Add ESLint + Prettier configs (JS/TS) so editors stay consistent.
+- Seed `SUMMARY.md` and `TODO.md` at repo root.
+- Confirm `.env.example` is in sync with actual env reads and `.env` is gitignored.
+- Verify the app starts (`npm start`) and the Angular SPA builds (`cd app-admin && ng build`) without errors — these are the baseline smoke checks.
 
-**Out of scope.** Any behavior changes.
+**Out of scope.** Any behavior changes. Automated test frameworks (Jest, Supertest) are not required by the rubric and are not added here; functional testing will be demonstrated manually per the course rubric.
 
 **Tasks (each = one commit).**
 
-1. `chore(git): create develop branch from main` (if needed).
-2. `chore(tooling): add eslint/prettier config for node and angular projects`.
-3. `chore(tooling): add jest as backend test runner with sample passing spec`.
-4. `chore(tooling): add markdownlint config to quiet existing warnings`.
-5. `docs(plan): add SUMMARY.md and TODO.md scaffolds`.
+1. `chore(tooling): add eslint/prettier config for node and angular projects`.
+2. `chore(tooling): add markdownlint config to quiet existing doc warnings`.
+3. `docs(plan): add SUMMARY.md and TODO.md scaffolds`.
 
-**Tests.** One smoke Jest spec that imports `app.js` without errors; confirm Angular specs still green.
+**Functional verification.** `npm start` reaches the home page; `cd app-admin && ng serve` loads the admin SPA without console errors.
 
-**Acceptance.** `npm test` (new) and `cd app-admin && npm test` both pass; `SUMMARY.md` and `TODO.md` exist.
+**Acceptance.** `SUMMARY.md` and `TODO.md` exist; app and SPA start cleanly; lint runs without fatal errors.
 
-**DoD.** Append to `SUMMARY.md`; commit `docs(summary): phase 0 complete — baseline & tooling`; open PR to `develop`.
+**DoD.** Append to `SUMMARY.md`; commit `docs(summary): phase 0 complete — baseline & tooling`; open PR to `final-project`.
 
 ---
 
@@ -134,13 +137,11 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 3. `feat(models): ensure user password is hashed on save`.
 4. `feat(models): add booking schema and register in db.js`.
 5. `chore(data): add category to seed trip fixtures`.
-6. `test(models): unit tests for trip category validation, booking invariants, user role default and password hashing`.
+**Functional verification.** `npm run seed` succeeds without errors; `GET /api/trips` (via Postman or browser) returns trips with a `category` field; attempting to save a trip without a valid category value is rejected by Mongoose.
 
-**Tests.** Jest specs for model validation (required fields, enum constraints, password hashing effect, reference uniqueness).
+**Acceptance.** Seed runs cleanly; `GET /api/trips` returns trips with `category`; password field is hashed in MongoDB (not plaintext).
 
-**Acceptance.** `npm run seed` succeeds; `GET /api/trips` still returns trips (now with `category`).
-
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
@@ -171,13 +172,11 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 4. `feat(api): add bookings controller and routes`.
 5. `feat(api): add users controller and admin routes`.
 6. `refactor(api): normalize error response payloads`.
-7. `test(api): add supertest coverage for trips filtering, bookings, users, auth and role gating`.
+**Functional verification.** Use Postman (or equivalent) to confirm: unauthenticated request to a protected endpoint returns 401; admin-only endpoint returns 403 for a customer token; `GET /api/trips?category=beach` returns only beach trips; `POST /api/bookings` with a valid token creates a booking; admin SPA still renders the trip list unchanged.
 
-**Tests.** Supertest (Jest) integration suite covering: auth success/failure, role gating, filter query parsing, booking create/list, user list/role update/delete.
+**Acceptance.** All new endpoints return documented JSON shapes; existing `GET /api/trips` (unfiltered) still works.
 
-**Acceptance.** All new endpoints return documented shapes; admin SPA still renders trip list unchanged.
-
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
@@ -203,13 +202,12 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 3. `feat(public): design tokens and base layout stylesheet`.
 4. `refactor(views): rebuild home page hero per WF-1`.
 5. `feat(public): skip-to-content link and landmark roles`.
-6. `test(views): snapshot/smoke tests for header and home controllers`.
 
-**Tests.** Supertest GETs on `/` return 200 with expected nav markup when logged-out.
+**Functional verification.** Load `/` in a browser — confirm the nav matches WF-1 (logo, correct links in order), hero cards render, and the page is responsive at 360 and 1280 px viewport widths (use Playwright or browser DevTools device emulation).
 
-**Acceptance.** Manual verification against WF-1 on desktop (1280) and mobile (360).
+**Acceptance.** Manual verification against WF-1 on desktop (1280) and mobile (360) passes.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
@@ -235,13 +233,12 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 2. `feat(public-travel): render category tabs with counts`.
 3. `feat(public-travel): search form (GET) and results table`.
 4. `feat(public-travel): pagination controls`.
-5. `test(public-travel): controller tests for query handling and empty-state message`.
 
-**Tests.** Supertest coverage: default view, category filter, search, empty state. Mock `fetch` against the API layer.
+**Functional verification.** In a browser: confirm all three category tabs filter correctly, the search field narrows results, pagination previous/next changes pages, and an empty search shows a graceful empty-state message. Use Playwright for repeatable checks if available.
 
 **Acceptance.** Table matches WF-2 columns; tabs and search change the visible rows; pagination reflects API totals.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
@@ -269,13 +266,12 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 3. `feat(public-auth): logout route`.
 4. `feat(public-auth): session middleware populating res.locals.isLoggedIn and user`.
 5. `feat(public-auth): forgot-password stub page`.
-6. `test(public-auth): controller specs for login/signup happy path and error paths`.
 
-**Tests.** Integration: posting to `/login` with good creds sets a cookie; subsequent GET `/` renders *Admin* and *Checkout* in nav.
+**Functional verification.** In a browser: register a new account via `/signup`, log in at `/login`, confirm the nav swaps *Login* → *Logout* and *Reservations* becomes visible. Log out and confirm the nav reverts. Attempt login with bad credentials and confirm an inline error appears.
 
 **Acceptance.** WF-3 and WF-4 look and behave correctly on desktop and mobile; nav conditional rendering works end-to-end.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
@@ -297,13 +293,12 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 2. `feat(public-booking): POST handler that calls bookings API with session JWT`.
 3. `feat(public-booking): reservations page listing current user's bookings`.
 4. `feat(public-booking): confirmation partial after successful booking`.
-5. `test(public-booking): controller specs including auth-redirect when not logged in`.
 
-**Tests.** Controller tests for auth-gated redirects; booking creation happy path.
+**Functional verification.** End-to-end browser flow: register → login → browse `/travel` → click a trip → checkout → confirm booking reference appears → visit `/reservations` → confirm the booking is listed. Unauthenticated access to `/checkout/:tripCode` must redirect to `/login`.
 
 **Acceptance.** A new customer can register, log in, book a trip, and see it in `/reservations`.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
@@ -340,13 +335,12 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 4. `feat(admin-ui): reservations page consuming GET /api/bookings`.
 5. `feat(admin-ui): users page with role toggle and delete`.
 6. `feat(admin-ui): settings placeholder page`.
-7. `test(admin-ui): unit specs for new components and services`.
 
-**Tests.** Karma/Jasmine: component rendering, guard redirect for non-admin, service calls hit expected URLs.
+**Functional verification.** In the browser: log in as an admin, confirm the sidebar matches WF-5 (logo tile, Travel / Reservations / Users / Settings links). Add a new trip with all fields including Category — confirm it appears in the trip list and in `GET /api/trips`. Edit an existing trip and confirm the update persists. View the Reservations and Users pages and confirm data loads from the API.
 
-**Acceptance.** The SPA visually matches WF-5 and supports trip CRUD, reservations view, user management.
+**Acceptance.** The SPA visually matches WF-5 and supports trip CRUD, reservations view, and user management.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
@@ -357,29 +351,30 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 **In scope.**
 
 - **Security**: add `helmet`, tighten CORS to only the configured SPA origin (from env), rate-limit `/api/login` and `/api/register` (e.g. `express-rate-limit`), confirm cookies are `HttpOnly` + `SameSite=Lax` + `Secure` in non-dev.
-- **Accessibility**: run axe on every public page and the SPA shell; fix contrast, labels, landmarks, focus order.
-- **Test coverage**: push backend coverage to ≥ 80% on changed code; SPA specs likewise. Add a minimal end-to-end smoke script (Node `fetch` against running server) covering register → login → book → view.
+- **Accessibility**: run axe (via Playwright or browser extension) on every public page and the SPA shell; fix contrast, labels, landmarks, focus order.
+- **Functional testing documentation**: write up the end-to-end test walkthrough (register → login → browse → book → view reservations → admin CRUD) with screenshots for the SDD §User Interface section. This is the "Testing" rubric deliverable.
 - **Docs**:
   - Update `README.md` with the new routes, roles, and scripts.
   - Add an **ADR** at `docs/adr/ADR-001-dual-app-mvc-spa.md` confirming the dual-surface pattern and why we kept server-rendered HBS alongside an Angular admin.
-  - Refresh SDD §User Interface with screenshots of the delivered SPA (the section still has placeholders).
+  - Refresh SDD §User Interface with screenshots of the delivered SPA (the section still has placeholders) and the testing walkthrough.
 - **Seed data**: populate realistic trips across all three categories so the UI demos well.
-- **Release**: merge `develop` → `release/1.0.0` → `main` with tag `v1.0.0` per GitFlow.
+- **Release**: tag `v1.0.0` on `final-project` after all phases are merged.
 
 **Tasks.**
 
 1. `feat(security): add helmet, tighten cors, rate-limit auth endpoints`.
 2. `fix(a11y): address axe findings on public pages and admin shell`.
-3. `test(coverage): raise coverage to the AI_RULES threshold on changed code`.
-4. `docs(readme): update with new routes, scripts, and roles`.
-5. `docs(adr): ADR-001 dual-app MVC+SPA pattern`.
-6. `docs(sdd): fill in User Interface section with SPA screenshots`.
-7. `chore(data): refreshed seed with multi-category trips`.
-8. `chore(release): bump version, tag v1.0.0`.
+3. `docs(readme): update with new routes, scripts, and roles`.
+4. `docs(adr): ADR-001 dual-app MVC+SPA pattern`.
+5. `docs(sdd): fill in User Interface section with SPA screenshots and testing walkthrough`.
+6. `chore(data): refreshed seed with multi-category trips`.
+7. `chore(release): tag v1.0.0`.
 
-**Acceptance.** All ground-rule checks pass; manual UAT against the wireframes succeeds; rubric criteria (Customer-Facing Website, MVC Routing, Render Test Data, NoSQL Database, RESTful API, Testing, SPA, Security, Clear Communication) are each covered by demonstrable behavior.
+**Functional verification.** Full UAT pass against all five wireframes using Playwright; axe reports zero critical violations; all rubric criteria demonstrably met.
 
-**DoD.** SUMMARY update → commit → merge per GitFlow.
+**Acceptance.** Manual UAT against the wireframes succeeds; rubric criteria (Customer-Facing Website, MVC Routing, Render Test Data, NoSQL Database, RESTful API, Testing, SPA, Security, Clear Communication) are each covered by demonstrable behavior.
+
+**DoD.** SUMMARY update → commit → PR to `final-project` → tag `v1.0.0`.
 
 ---
 
