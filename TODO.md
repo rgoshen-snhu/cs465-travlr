@@ -130,7 +130,38 @@ add a trip, edit a trip, and logout. Fix any broken wiring without redesigning.
 
 ---
 
+## [2026-04-13] Feature: Phase 4 UI — Admin SPA Wireframe Redesign
+
+**Objective:**
+Redesign the Angular admin SPA to match WF-2 (Travel table) and WF-5 (Admin
+sidebar layout and form fields) wireframes.
+
+**Approach:**
+- Replace top Bootstrap navbar with a blue left sidebar (WF-5): envelope icon,
+  "My Project" branding, Travel / Reservations / Users / Settings nav links
+- Convert trip listing from card grid to data table (WF-2): ID, Name, Length,
+  Start, Resort, Per Person columns; Edit and Delete affordances for admins
+- Move `editTrip()` into `TripListingComponent`; TripCardComponent no longer
+  used in the listing view
+- Update add-trip and edit-trip forms: WF-5 field labels, separate Nights/Days
+  steppers for Length of Stay (default 3/3), Start Date as date input
+- Parse existing `"N nights / M days"` strings in edit-trip on load; recombine
+  on submit — no API or schema changes
+
+**Tests:**
+- `npx ng build` exits 0
+- Admin can log in, see sidebar, view trip table, add trip, edit trip, log out
+
+**Risks & Tradeoffs:**
+- ISO timestamp → `yyyy-MM-dd` slice required for date input compatibility
+- CurrencyPipe/DatePipe must be explicitly imported in standalone components
+
+**Status:** COMPLETE
+
+---
+
 ## Upcoming Phases
 
 - **Phase 5** — Customer auth (/login, /signup, /logout; JWT HttpOnly cookie)
+  + Reservation model, booking flow, /itinerary page, admin Reservations tab
 - **Phase 6** — Hardening, docs, SDD testing walkthrough, v1.0.0 tag

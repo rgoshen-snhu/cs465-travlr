@@ -154,3 +154,33 @@ admin already exists).
 
 **References:**
 - PLAN.md: Phase 4 — Admin SPA: Complete & Verify
+
+---
+
+## [2026-04-13] Phase 4 UI — Admin SPA Redesign to Match Wireframes
+
+**Change Type:** Feature
+**Scope:** Phase 4 — Admin SPA UI (WF-2, WF-5)
+
+**Summary:**
+Redesigned the Angular admin SPA to match the WF-2 (Travel table) and WF-5
+(Admin sidebar + form) wireframes. Replaced the Bootstrap top navbar with a
+blue left sidebar containing an envelope icon, "My Project" branding, and
+vertical nav links (Travel, Reservations, Users, Settings). Converted the trip
+listing from a Bootstrap card grid to a data table with columns: ID, Name,
+Length, Start, Resort, Per Person, Edit, and Delete. Edit/Delete columns render
+conditionally for logged-in admins only. Updated add-trip and edit-trip forms
+to use WF-5 field labels (Code→ID, Name→Destination) and replaced the plain
+`length` text input with separate Nights and Days numeric steppers (default
+3/3). The edit-trip component parses existing `"N nights / M days"` strings on
+load and recombines them on submit — no API or schema changes required.
+
+**Issues encountered & resolution:**
+- `start` field stores ISO timestamps; the `type="date"` input requires
+  `yyyy-MM-dd` — resolved by slicing `trip.start.substring(0, 10)` on load.
+- `CurrencyPipe` and `DatePipe` must be explicitly imported in standalone
+  components; added to `TripListingComponent` imports array.
+
+**References:**
+- PLAN.md: Phase 4 — Admin SPA: Complete & Verify
+- docs/CS 465 Travlr Getaways Wireframe.pdf: WF-2, WF-5
