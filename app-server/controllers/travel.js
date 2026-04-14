@@ -16,7 +16,7 @@ const travel = async function (req, res) {
     let message = null;
     try {
         const response = await fetch(tripsEndpoint, options);
-        const trips = await response.json();
+        let trips = await response.json();
         if (!Array.isArray(trips)) {
             message = 'API lookup error';
             trips = [];

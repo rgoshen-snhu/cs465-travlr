@@ -2,7 +2,9 @@
 
 > **Scope.** Refactor the current codebase into the end-to-end product described in `docs/REQUIREMENTS.md`, using the wireframe as the UI contract and the SDD as the architectural contract.
 >
-> **Working method.** GitFlow branches, atomic Conventional Commits, strict TDD on new logic, and per-phase documentation discipline. Phases are sequential; tasks within a phase are atomic commits.
+> **Working method.** Feature branches off `final-project` (treated as `main`), atomic Conventional Commits, functional testing aligned with the course rubric, and per-phase documentation discipline. Phases are sequential; tasks within a phase are atomic commits.
+>
+> **Branch model.** `final-project` is the integration branch (acts as `main`). Each phase lives on `feature/phase-N-<slug>`, branched from `final-project` and merged back via PR. No separate `develop` branch is needed.
 
 ---
 
@@ -37,30 +39,39 @@ Every phase must be read against these sources. If a phase conflicts with any of
    - **Angular components (`app-admin/src/app/**`)** — Angular 17 **standalone** components, `CommonModule` + `FormsModule`/`ReactiveFormsModule` imports, `templateUrl` + `styleUrl` pair, services under `services/`, models under `models/`, `BROWSER_STORAGE` injection token for `localStorage` access.
    - **Config** — read via `process.env` with a safe local default, consistent with `app-api/models/db.js` and `bin/www`.
    - **Commit style** — Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`, `perf:`), atomic, no AI co-author tags (per `AI_RULES.md` §2).
-2. **TDD.** Red → Green → Refactor on every new unit of behavior (`AI_RULES.md` §1). Server code uses Jest; the Angular SPA continues with Karma + Jasmine.
+2. **Testing (aligned with course rubric).** The rubric criterion "Testing" (15 pts) requires demonstrating the application can store and retrieve data via input/output — this is **functional testing**, not automated TDD. The SDD reinforces this: "describe the process of testing to make sure the SPA is working with the API to GET and PUT data in the database." Each phase's testing deliverable is therefore a documented, reproducible functional test (Postman, browser, or a minimal Node script) showing the feature works end-to-end. Automated Jest/Supertest unit tests are welcome where they add value but are **not required by the rubric**.
 3. **Per-phase deliverables.**
    - Close every task inside a phase as an atomic commit.
    - At phase completion, update **`SUMMARY.md`** with `What was done`, `How`, `Issues encountered & resolution`.
    - Final commit of the phase is `docs(summary): phase N complete — <title>` and updates SUMMARY.md.
-   - Open a PR from `feature/phase-N-<slug>` into `develop` (per GitFlow in `AI_RULES.md` §2).
+   - Open a PR from `feature/phase-N-<slug>` into `final-project`.
 4. **Never break GET `/api/trips`.** The server-side public site and the Angular SPA both read from it in parallel; every change must keep the read path live.
 5. **Stop and ask** if a phase reveals a contradiction with `docs/REQUIREMENTS.md` §11 Open Questions — do not silently invent a product decision.
+6. **Available tooling for execution.**
+   - **GitHub CLI (`gh`)** — create branches, open PRs, view CI status.
+   - **MongoDB MCP** — inspect live collections, verify seed data, run ad-hoc queries against the local database without leaving the editor.
+   - **Context7 MCP** — fetch up-to-date docs for Express, Mongoose, Angular 17, and other dependencies before writing code.
+   - **Playwright MCP** — drive a real browser for functional verification steps; use instead of manual browser checks where repeatability matters.
 
 ---
 
 ## Phase Map
 
-| Phase | Title                                            | Branch                              |
-|-------|--------------------------------------------------|-------------------------------------|
-| 0     | Baseline, Tooling, and SUMMARY scaffolding       | `feature/phase-0-baseline`          |
-| 1     | Domain Model Extensions                          | `feature/phase-1-domain-model`      |
-| 2     | API Layer Refactor & New Endpoints               | `feature/phase-2-api`               |
-| 3     | Public Site — Shell (nav, home, design tokens)   | `feature/phase-3-public-shell`      |
-| 4     | Public Site — Travel page (categories, search)   | `feature/phase-4-public-travel`     |
-| 5     | Public Site — Customer Auth (login, signup)      | `feature/phase-5-public-auth`       |
-| 6     | Public Site — Reservations & Checkout            | `feature/phase-6-public-booking`    |
-| 7     | Admin SPA — Redesigned Layout & Trip Form        | `feature/phase-7-admin-ui`          |
-| 8     | Hardening (security, a11y, test coverage) & Release | `feature/phase-8-hardening`      |
+| Phase | Title                                                    | Branch                              |
+|-------|----------------------------------------------------------|-------------------------------------|
+| 0     | Baseline, Tooling, and SUMMARY scaffolding               | `feature/phase-0-baseline`          |
+| 1     | Migrate All Public Data to MongoDB                       | `feature/phase-1-mongodb-migration` |
+| 2     | Complete the API Layer                                   | `feature/phase-2-api`               |
+| 3     | Wire All Public Controllers to API                       | `feature/phase-3-public-wiring`     |
+| 4     | Admin SPA — Complete & Verify                            | `feature/phase-4-admin-spa`         |
+| 5     | Customer Auth (Login, Signup)                            | `feature/phase-5-customer-auth`     |
+| 6     | Hardening & Release                                      | `feature/phase-6-hardening`         |
+
+---
+
+## Data Architecture Principle
+
+**All public content must flow through MongoDB → API → controller → HBS view.** No controller may read from a flat JSON file. The `data/` folder is seed-only: it provides initial data for `npm run seed` and is never read at request time. `app-server/controllers/travel.js` is the reference implementation for every public controller.
 
 ---
 
@@ -84,302 +95,203 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 
 ## Phase 0 — Baseline, Tooling, SUMMARY Scaffolding
 
-**Goal.** Make the repo ready for disciplined iterative work: predictable tests, lint, and the documentation loop described in Ground Rules §3.
+**Goal.** Make the repo ready for disciplined iterative work: consistent lint config, documentation scaffolding, and a clean environment baseline. Branch from `final-project`.
 
 **In scope.**
 
-- Cut `develop` from `main` if not present.
-- Create `feature/phase-0-baseline`.
-- Add Jest for backend tests (`tests/` directory or `*.spec.js` beside source).
-- Confirm Angular Karma/Jasmine still runs (`cd app-admin && npm test`).
-- Add ESLint + Prettier configs (JS/TS) and `markdownlint` config (at minimum to quiet the warnings in current docs).
-- Seed `SUMMARY.md` and `TODO.md` at repo root with the templates from `AI_RULES.md` §11.5.
-- Make sure `.env.example` stays in sync with env reads and `.env` is gitignored.
+- Create `feature/phase-0-baseline` from `final-project`.
+- Add ESLint + Prettier configs (JS/TS) so editors stay consistent.
+- Seed `SUMMARY.md` and `TODO.md` at repo root.
+- Confirm `.env.example` is in sync with actual env reads and `.env` is gitignored.
+- Verify the app starts (`npm start`) and the Angular SPA builds (`cd app-admin && ng build`) without errors — these are the baseline smoke checks.
 
-**Out of scope.** Any behavior changes.
+**Out of scope.** Any behavior changes. Automated test frameworks (Jest, Supertest) are not required by the rubric and are not added here; functional testing will be demonstrated manually per the course rubric.
 
 **Tasks (each = one commit).**
 
-1. `chore(git): create develop branch from main` (if needed).
-2. `chore(tooling): add eslint/prettier config for node and angular projects`.
-3. `chore(tooling): add jest as backend test runner with sample passing spec`.
-4. `chore(tooling): add markdownlint config to quiet existing warnings`.
-5. `docs(plan): add SUMMARY.md and TODO.md scaffolds`.
+1. `chore(tooling): add eslint/prettier config for node and angular projects`.
+2. `chore(tooling): add markdownlint config to quiet existing doc warnings`.
+3. `docs(plan): add SUMMARY.md and TODO.md scaffolds`.
 
-**Tests.** One smoke Jest spec that imports `app.js` without errors; confirm Angular specs still green.
+**Functional verification.** `npm start` reaches the home page; `cd app-admin && ng serve` loads the admin SPA without console errors.
 
-**Acceptance.** `npm test` (new) and `cd app-admin && npm test` both pass; `SUMMARY.md` and `TODO.md` exist.
+**Acceptance.** `SUMMARY.md` and `TODO.md` exist; app and SPA start cleanly; lint runs without fatal errors.
 
-**DoD.** Append to `SUMMARY.md`; commit `docs(summary): phase 0 complete — baseline & tooling`; open PR to `develop`.
+**DoD.** Append to `SUMMARY.md`; commit `docs(summary): phase 0 complete — baseline & tooling`; open PR to `final-project`.
 
 ---
 
-## Phase 1 — Domain Model Extensions
+## Phase 1 — Migrate All Public Data to MongoDB
 
-**Goal.** Evolve the Mongoose models to cover customer accounts, trip categories, and bookings, as required by `docs/REQUIREMENTS.md` §9.
+**Goal.** Move every piece of content currently read from flat JSON files into MongoDB collections, so the API is the single source of truth for all public data.
 
 **In scope.**
 
-- Extend **Trip** with `category: { type: String, enum: ['beach','cruise','mountain'], required: true, index: true }` and timestamps. Default existing trips to a category during migration.
-- Extend **User** with `role: { type: String, enum: ['customer','admin'], default: 'customer', required: true }` and timestamps. Confirm password hashing lives in the model pre-save hook; if currently plaintext, fix here (hard requirement from `AI_RULES.md` §9).
-- Add **Booking** model: `reference` (unique), `user` (ObjectId ref `users`), `tripCode` (ref by code string), `travelers`, `startDate`, `status` (`pending|confirmed|cancelled`), timestamps.
-- Update `data/` seed JSON to include `category` for each trip, and extend `app-api/models/seed.js` for any new collections.
+- Add **Room** Mongoose model: `name`, `image`, `description`, `rate`. Seed from `data/rooms.json`.
+- Add **Meal** Mongoose model: `name`, `image`, `description`, `price`, `type` (`breakfast|lunch|dinner|specialty`). Seed from `data/meals.json`.
+- Add **NewsArticle** Mongoose model: `title`, `image`, `summary`, `body`, `publishedAt` (Date), `articleType` (`latestNews|vacationTips|featured`). Seed from `data/news.json`.
+- Add **HomeContent** Mongoose model: `hero` (object with `heading`, `subheading`, `image`), `testimonial` (object), `sidebar` (object). Seed from `data/home.json`.
+- Extend **User** with `role: { type: String, enum: ['customer','admin'], default: 'customer', required: true }`. Confirm password is hashed by the pre-save hook (not stored plaintext).
+- Register all new models via `app-api/models/db.js` side-effect imports.
+- Extend `app-api/models/seed.js` to seed all new collections (delete-then-insert, idempotent).
 
-**Follow existing patterns.** Keep model definition style matching `app-api/models/travlr.js`. Register the new Booking model via `app-api/models/db.js`'s side-effect import pattern.
+**Follow existing patterns.** Model definition style matches `app-api/models/travlr.js`. Seed style matches the existing `seed.js` pattern.
 
 **Tasks.**
 
-1. `feat(models): add category enum to trip schema`.
-2. `feat(models): add role and timestamps to user schema`.
-3. `feat(models): ensure user password is hashed on save`.
-4. `feat(models): add booking schema and register in db.js`.
-5. `chore(data): add category to seed trip fixtures`.
-6. `test(models): unit tests for trip category validation, booking invariants, user role default and password hashing`.
+1. `feat(models): add Room, Meal, NewsArticle, HomeContent schemas and register in db.js`.
+2. `feat(models): add role to user schema; confirm password hashing pre-save hook`.
+3. `chore(seed): extend seed.js to populate rooms, meals, news, and home collections`.
 
-**Tests.** Jest specs for model validation (required fields, enum constraints, password hashing effect, reference uniqueness).
+**Functional verification.** Run `npm run seed`; connect via MongoDB MCP and confirm `rooms`, `meals`, `newsarticles`, and `homecontents` collections each contain the expected documents.
 
-**Acceptance.** `npm run seed` succeeds; `GET /api/trips` still returns trips (now with `category`).
+**Acceptance.** All five collections (`trips`, `rooms`, `meals`, `newsarticles`, `homecontents`) are seeded without errors.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
-## Phase 2 — API Layer Refactor & New Endpoints
+## Phase 2 — Complete the API Layer
 
-**Goal.** Harden the REST surface and add what customer-facing features and admin features need (`docs/REQUIREMENTS.md` §§7.2, 7.3, 7.4, 7.5).
+**Goal.** Expose all content collections via the REST API so every public controller can use the loopback fetch pattern.
 
 **In scope.**
 
-- Extract `authenticateJWT` to `app-api/middleware/auth.js` (still used by the existing route file).
-- Add `requireRole('admin')` middleware for admin-only routes; continue to allow any authenticated user for `/bookings/mine`.
-- Extend `GET /api/trips` with optional query params: `category`, `q` (name/resort substring), `priceMin`, `priceMax`, `page`, `pageSize`. Keep the unfiltered call backwards-compatible (returns all trips).
-- Add **Bookings API**:
-  - `POST /api/bookings` (auth required) — create reservation.
-  - `GET /api/bookings/mine` (auth required) — the caller's bookings.
-  - `GET /api/bookings` (admin only) — all bookings.
-- Add **Users API** (admin only): `GET /api/users`, `PUT /api/users/:id/role`, `DELETE /api/users/:id`.
-- Normalize error responses: always `{ message }` on non-2xx; never leak stack traces.
-- Controllers in `app-api/controllers/bookings.js` and `app-api/controllers/users.js`, mirroring `trips.js`.
+- Add `app-api/controllers/rooms.js` — `roomsList` handler: `GET /api/rooms` (public).
+- Add `app-api/controllers/meals.js` — `mealsList` handler: `GET /api/meals` (public).
+- Add `app-api/controllers/news.js` — `newsList` handler: `GET /api/news` (public, supports optional `?type=` filter for `latestNews|vacationTips|featured`).
+- Add `app-api/controllers/home.js` — `homeContent` handler: `GET /api/home` (public, returns the single HomeContent document).
+- Wire all four into `app-api/routes/index.js` using the existing `router.route(…).get(…)` pattern.
+- Confirm `POST /api/trips` (`tripsAddTrip`) and `PUT /api/trips/:tripCode` (`tripsUpdateTrip`) are fully implemented in `app-api/controllers/trips.js` — these are already routed but may be stubs.
+- Normalize error responses across all controllers: always `{ message }` on non-2xx; never leak stack traces.
 
-**Follow existing patterns.** `router.route('/x').get(...).post(middleware, ...)` chaining in `app-api/routes/index.js`. Do **not** introduce `express.Router()` sub-routers per resource — the current codebase has a single flat router.
+**Follow existing patterns.** One controller file per resource. `router.route('/x').get(handler)` in the single flat `app-api/routes/index.js`. No sub-routers.
 
 **Tasks.**
 
-1. `refactor(api): extract authenticateJWT to middleware module`.
-2. `feat(api): add requireRole middleware`.
-3. `feat(api): add search, filter, and pagination query params to GET /api/trips`.
-4. `feat(api): add bookings controller and routes`.
-5. `feat(api): add users controller and admin routes`.
-6. `refactor(api): normalize error response payloads`.
-7. `test(api): add supertest coverage for trips filtering, bookings, users, auth and role gating`.
+1. `feat(api): add rooms, meals, news, and home controllers and GET routes`.
+2. `feat(api): complete tripsAddTrip and tripsUpdateTrip controller methods`.
+3. `refactor(api): normalize error response payloads across all controllers`.
 
-**Tests.** Supertest (Jest) integration suite covering: auth success/failure, role gating, filter query parsing, booking create/list, user list/role update/delete.
+**Functional verification.** Use Postman or browser to confirm each new endpoint returns the correct JSON: `GET /api/rooms`, `GET /api/meals`, `GET /api/news`, `GET /api/news?type=vacationTips`, `GET /api/home`. Confirm `POST /api/trips` (with JWT) creates a trip and `PUT /api/trips/:code` updates it.
 
-**Acceptance.** All new endpoints return documented shapes; admin SPA still renders trip list unchanged.
+**Acceptance.** All new GET endpoints return data; trips CRUD endpoints work with JWT auth; existing `GET /api/trips` unchanged.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
-## Phase 3 — Public Site Shell (Nav, Home, Design Tokens)
+## Phase 3 — Wire All Public Controllers to API
 
-**Goal.** Establish the wireframe-accurate public shell that every subsequent public page builds on (WF-1).
+**Goal.** Eliminate every `fs.readFileSync` call from the public-site controllers. All data reaches the HBS views through the API loopback, matching the pattern in `app-server/controllers/travel.js`.
 
-**UI design (WF-1).**
+**In scope.**
 
-- Rebuild `partials/header.hbs` to exactly the nav contract:
-  - Left: corp logo (use `docs/images/getaways_logo.png`, served from `/public/images/`).
-  - Links in order: *Travel*, *News*, *Reservations*, *Admin*, *Checkout*, *Login*.
-  - Pass `isLoggedIn` and `user` (populated by session middleware from Phase 5) into the layout. **Hide *Reservations* when `!isLoggedIn`** (the only Logged-In-Only item per the wireframe text version). *Admin* and *Checkout* remain visible to anonymous users and route to `/login?next=...` on click. Swap *Login* for *Logout* when logged in. Until Phase 5 lands, feed `isLoggedIn=false` so the conditional rendering is present but dormant.
-  - Highlight the active item via the existing `eq` helper (`{{#if (eq navPage 'travel')}}active{{/if}}`) — pattern already used by this codebase.
-- Rebuild `views/index.hbs` to the WF-1 hero layout: a row of three destination cards/placeholders over a background band.
-- Establish **design tokens** in `public/stylesheets/tokens.css` (CSS custom properties) and base layout rules in `public/stylesheets/layout.css`. Share tokens with the Angular SPA by copying the file into `app-admin/src/styles/tokens.css` and importing it from `styles.css` — avoids introducing a new shared-package pattern.
-- Add responsive breakpoints at 600 / 900 / 1280.
+- Rewrite `app-server/controllers/rooms.js` — async fetch from `GET /api/rooms`, render `rooms` view.
+- Rewrite `app-server/controllers/meals.js` — async fetch from `GET /api/meals`, render `meals` view.
+- Rewrite `app-server/controllers/news.js` — async fetch from `GET /api/news`, render `news` view (pass `latestNews`, `vacationTips`, `featured` slices from the returned array filtered by `articleType`).
+- Rewrite `app-server/controllers/main.js` — async fetch from `GET /api/home` and `GET /api/news?type=latestNews`, render `index` view.
+- Remove `data/` reads at request time. The `data/*.json` files remain on disk as seed-only inputs; no production code reads them after this phase.
+
+**Follow existing patterns.** Identical structure to `travel.js`: `const port = process.env.PORT ?? 3000`, build endpoint URL, `async/await fetch`, `try/catch` with `console.error`, render with `{ title, navPage, ...data, message }`.
 
 **Tasks.**
 
-1. `refactor(views): replace header partial with wireframe-accurate nav`.
-2. `feat(views): conditional admin/checkout/login nav items based on session flag`.
-3. `feat(public): design tokens and base layout stylesheet`.
-4. `refactor(views): rebuild home page hero per WF-1`.
-5. `feat(public): skip-to-content link and landmark roles`.
-6. `test(views): snapshot/smoke tests for header and home controllers`.
+1. `refactor(controllers): wire rooms controller to GET /api/rooms`.
+2. `refactor(controllers): wire meals controller to GET /api/meals`.
+3. `refactor(controllers): wire news controller to GET /api/news`.
+4. `refactor(controllers): wire home controller to GET /api/home and GET /api/news`.
 
-**Tests.** Supertest GETs on `/` return 200 with expected nav markup when logged-out.
+**Functional verification.** With `npm start` running: browse to `/`, `/rooms`, `/meals`, `/news` in a browser and confirm each page renders content drawn from MongoDB (stop the server and empty a collection via MongoDB MCP — the page should show the empty-state message, proving it is not reading the JSON file).
 
-**Acceptance.** Manual verification against WF-1 on desktop (1280) and mobile (360).
+**Acceptance.** No `require('fs')` or `readFileSync` calls remain in any `app-server/controllers/*.js` file; all public pages render live database content.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
-## Phase 4 — Public Site: Travel Page (Categories, Search, Pagination)
+## Phase 4 — Admin SPA: Complete & Verify
 
-**Goal.** Deliver WF-2 as the primary browsing experience.
+**Goal.** Confirm the Angular admin SPA is fully functional end-to-end: login, list trips, add a trip, edit a trip, and logout. Fix any broken wiring without redesigning the UI.
 
-**UI design (WF-2).**
+**In scope.**
 
-- Page title "Travel", subheader "Editable List of Stuff" becomes **"Browse Trips"** (substantive title; the wireframe placeholder text is not a requirement).
-- Category tabs: *Beaches (n)*, *Cruises (n)*, *Mountains (n)*. Counts come from the API filter totals returned with the trip list.
-- Search input, client-side debounced (300 ms) to hit `GET /api/trips?q=...&category=...`.
-- Six-column table (ID / Name / Length / Start / Resort / Per Person) with row-hover highlight to match the blue selection style in the wireframe.
-- Pagination controls (previous / next) on the lower right, wired to the API's `page`/`pageSize` params.
-- The *Edit* action column is **admin-only** — omit on the public travel page; the admin SPA in Phase 7 surfaces it instead.
-- The wireframe's *Add a Trip* button is **admin-only** and is omitted on the public page.
+- Verify `POST /api/register` and `POST /api/login` return the expected token shape; align the Angular `AuthenticationService` if needed.
+- Confirm `tripsAddTrip` (Phase 2) and `tripsUpdateTrip` (Phase 2) work from the SPA add/edit forms.
+- Fix any runtime errors in `app-admin` (broken imports, missing env, CORS issues).
+- Confirm the JWT interceptor attaches the token to add/edit requests.
+- **Admin accounts are seeded, not self-registered.** Extend `seed.js` to create at least one admin user (hashed password) if none exists. The `/signup` route (Phase 5) is for customers only.
 
-**Follow existing patterns.** Server-side render with HBS, driven by `app-server/controllers/travel.js` using its existing `fetch`-against-loopback pattern. The tab/search/pagination state lives in query string parameters (`?category=beach&page=2`) so the page stays SEO-friendly and back-buttonable.
+**Out of scope.** UI redesign, new sidebar, reservations/users pages. Those are deferred.
 
 **Tasks.**
 
-1. `feat(public-travel): read category, q, page from query string in travel controller`.
-2. `feat(public-travel): render category tabs with counts`.
-3. `feat(public-travel): search form (GET) and results table`.
-4. `feat(public-travel): pagination controls`.
-5. `test(public-travel): controller tests for query handling and empty-state message`.
+1. `fix(admin-spa): resolve any startup or compile errors in app-admin`.
+2. `fix(admin-spa): confirm add-trip and edit-trip forms call the completed API endpoints`.
+3. `chore(seed): seed an admin user account for development testing`.
 
-**Tests.** Supertest coverage: default view, category filter, search, empty state. Mock `fetch` against the API layer.
+**Functional verification.** Start `cd app-admin && ng serve`. Log in with the seeded admin credentials. Confirm the trip list loads. Add a new trip — confirm it appears in `GET /api/trips` and in the trip list. Edit that trip and confirm the change persists. Log out.
 
-**Acceptance.** Table matches WF-2 columns; tabs and search change the visible rows; pagination reflects API totals.
+**Acceptance.** Admin can log in, create a trip, edit it, and log out without errors.
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
-## Phase 5 — Public Site: Customer Auth (Login, Signup, Session)
+## Phase 5 — Customer Auth (Login, Signup)
 
-**Goal.** Deliver WF-3 (Login) and WF-4 (Sign Up), and wire the session flag that the Phase 3 navbar is already reading.
+**Goal.** Deliver customer-facing login (WF-3) and sign-up (WF-4). Customers register themselves; admins are pre-seeded (Phase 4) and are not self-registered.
 
 **UI design.**
 
-- **WF-3 Login**: page at `/login`, centered form card: email + password, *Login* button, *Forgot password?* link (routes to `/reset-password` — see §Open Questions in REQUIREMENTS; stub page acceptable for this release unless confirmed).
-- **WF-4 Sign Up**: page at `/signup`, centered form card with *Name*, *Email*, *Password* (with help icon showing password rules tooltip on focus), *Re-type password*, Terms/Privacy checkbox, *Sign up* button, *Learn more* link routed to a static `/about` section.
-- Form errors render inline, tied to `aria-describedby` for the affected input; invalid fields get `aria-invalid="true"`.
+- **`/login`** — centered form card: Email + Password fields, *Login* button, *Sign up* link. On success, store JWT in an `HttpOnly` cookie and redirect to `/travel`. On failure, render an inline error above the form.
+- **`/signup`** — centered form card: Name, Email, Password, Re-type Password fields, *Sign Up* button, *Log in* link. Validates passwords match client-side before submitting. On success, auto-login (set cookie) and redirect to `/travel`. On failure, render inline errors.
+- **`/logout`** — clears the cookie, redirects to `/`.
+- Nav updates: pass `isLoggedIn` and `userName` into `res.locals` via middleware so `header.hbs` can show *Logout* instead of *Login* when a session is active.
 
-**Session.**
-
-- Introduce a minimal Express session using `cookie-parser` (already a dep) to store the JWT in an `HttpOnly` cookie set at login/signup. Middleware parses the cookie into `res.locals.isLoggedIn` + `res.locals.user` for HBS templates.
-- Logout route clears the cookie.
-
-**Follow existing patterns.** New server routes `/login`, `/signup`, `/logout`, `/reset-password` follow the `app-server/routes/*.js` + `app-server/controllers/*.js` pattern. The controllers use the loopback `fetch` to call `POST /api/login` and `POST /api/register`.
+**Follow existing patterns.** New routes in `app-server/routes/auth.js` mounted at `/`. New controller `app-server/controllers/auth.js` — uses `fetch` loopback to call `POST /api/login` and `POST /api/register`, exactly as other controllers call their API endpoints.
 
 **Tasks.**
 
-1. `feat(public-auth): login page and POST handler setting httpOnly cookie`.
-2. `feat(public-auth): signup page with client + server validation`.
-3. `feat(public-auth): logout route`.
-4. `feat(public-auth): session middleware populating res.locals.isLoggedIn and user`.
-5. `feat(public-auth): forgot-password stub page`.
-6. `test(public-auth): controller specs for login/signup happy path and error paths`.
+1. `feat(public-auth): login page, POST handler, and HttpOnly JWT cookie`.
+2. `feat(public-auth): signup page and POST handler (customers only)`.
+3. `feat(public-auth): logout route clearing cookie`.
+4. `feat(public-auth): session middleware setting res.locals.isLoggedIn and userName`.
+5. `refactor(views): update header.hbs to show Login/Logout based on session`.
 
-**Tests.** Integration: posting to `/login` with good creds sets a cookie; subsequent GET `/` renders *Admin* and *Checkout* in nav.
+**Functional verification.** In a browser: visit `/signup`, register as a new customer, confirm redirect to `/travel` and nav shows *Logout*. Visit `/logout`, confirm nav reverts to *Login*. Visit `/login`, log in with the same credentials, confirm session is restored. Attempt login with bad credentials and confirm inline error.
 
-**Acceptance.** WF-3 and WF-4 look and behave correctly on desktop and mobile; nav conditional rendering works end-to-end.
+**Acceptance.** Customer registration and login work end-to-end; nav reflects session state; admin login via `/login` also works (same form, different role stored in JWT).
 
-**DoD.** SUMMARY update → commit → PR to `develop`.
-
----
-
-## Phase 6 — Public Site: Reservations & Checkout
-
-**Goal.** Close the customer loop from discovery → booking → "I can see my booking later" (`docs/REQUIREMENTS.md` §§7.3, 7.4, FR-CAT-004).
-
-**UI design.**
-
-- **Checkout (`/checkout/:tripCode`)** — accessible only when logged in (middleware redirects to `/login?next=...`). Shows trip summary card (reuse the home-page trip card markup), traveler count input, start date (if multiple available), confirm button. Submits to `POST /api/bookings`.
-- **Reservations (`/reservations`)** — accessible only when logged in. Lists the caller's bookings (reference, trip name, start date, traveler count, status). Uses `GET /api/bookings/mine`.
-- Confirmation partial after a successful booking: reference number, trip name, returning-home CTA. No email or payment in this release (per Q-1 + Q-4 in REQUIREMENTS).
-
-**Follow existing patterns.** Controllers pull JWT from the session cookie and forward it as `Authorization: Bearer ...` to the loopback API call — matches how the admin SPA already calls the API.
-
-**Tasks.**
-
-1. `feat(public-booking): checkout page rendering trip summary and booking form`.
-2. `feat(public-booking): POST handler that calls bookings API with session JWT`.
-3. `feat(public-booking): reservations page listing current user's bookings`.
-4. `feat(public-booking): confirmation partial after successful booking`.
-5. `test(public-booking): controller specs including auth-redirect when not logged in`.
-
-**Tests.** Controller tests for auth-gated redirects; booking creation happy path.
-
-**Acceptance.** A new customer can register, log in, book a trip, and see it in `/reservations`.
-
-**DoD.** SUMMARY update → commit → PR to `develop`.
+**DoD.** SUMMARY update → commit → PR to `final-project`.
 
 ---
 
-## Phase 7 — Admin SPA Redesign (Layout, Trip Form, Users, Reservations)
+## Phase 6 — Hardening & Release
 
-**Goal.** Rebuild the Angular admin app to match WF-5.
-
-**UI design (WF-5).**
-
-- **Shell layout**: standalone `ShellComponent` wraps `<router-outlet>` and renders:
-  - A blue left **sidebar**: "My Project" logo tile at the top, vertical links *Travel*, *Reservations*, *Users*, *Settings*. Collapsed on narrow viewports into a top drawer.
-  - A top action bar with help / messages / mail / profile icons (icons as inline SVG; profile menu includes Logout).
-- **Trip form component** (replaces current `add-trip` and `edit-trip` templates — or shared): fields *ID*, *Destination*, *Length of Stay* (two numeric steppers: nights + days), *Start Date* (with calendar icon), *Resort*, *Per Person*, plus **Category** (drop-down: Beach / Cruise / Mountain — required by Phase 1 schema), **Image URL**, and **Description**. Use `ReactiveFormsModule` for stronger validation.
-- **Reservations component** (`/reservations`): table of all bookings via `GET /api/bookings` (admin), with user, trip, start date, status, and a status change control.
-- **Users component** (`/users`): table via `GET /api/users` with role toggle (customer ↔ admin) and delete.
-- **Settings component** (`/settings`): placeholder card "No settings in this release." Confirms the route exists and is protected behind admin role.
-
-**Follow existing patterns.**
-
-- Standalone Angular 17 components, `CommonModule` + `Reactive/FormsModule` imports.
-- New services in `app-admin/src/app/services/`: extend `trip-data.service.ts` for new filter params; add `booking-data.service.ts` and `user-data.service.ts` in the same shape.
-- Continue using the `BROWSER_STORAGE` injection token for any client-side persistence; do not add a new storage abstraction.
-- Use the existing JWT interceptor; extend it if new endpoints require auth, don't duplicate it.
-
-**Routing.**
-
-- `app.routes.ts` becomes: `{ path: '', component: ShellComponent, canActivate: [adminGuard], children: [ ... ] }` with child routes for `trips`, `trips/new`, `trips/:code`, `reservations`, `users`, `settings`, and the public-facing `login` kept outside the shell.
-
-**Tasks.**
-
-1. `feat(admin-ui): add shell component with sidebar and top bar`.
-2. `refactor(admin-ui): reorganize routes behind shell and admin guard`.
-3. `refactor(admin-ui): rebuild add/edit trip forms with reactive forms and wireframe fields`.
-4. `feat(admin-ui): reservations page consuming GET /api/bookings`.
-5. `feat(admin-ui): users page with role toggle and delete`.
-6. `feat(admin-ui): settings placeholder page`.
-7. `test(admin-ui): unit specs for new components and services`.
-
-**Tests.** Karma/Jasmine: component rendering, guard redirect for non-admin, service calls hit expected URLs.
-
-**Acceptance.** The SPA visually matches WF-5 and supports trip CRUD, reservations view, user management.
-
-**DoD.** SUMMARY update → commit → PR to `develop`.
-
----
-
-## Phase 8 — Hardening & Release
-
-**Goal.** Reach the non-functional bar before shipping (`docs/REQUIREMENTS.md` §8).
+**Goal.** Security hardening, documentation completion, and tagging the final release.
 
 **In scope.**
 
-- **Security**: add `helmet`, tighten CORS to only the configured SPA origin (from env), rate-limit `/api/login` and `/api/register` (e.g. `express-rate-limit`), confirm cookies are `HttpOnly` + `SameSite=Lax` + `Secure` in non-dev.
-- **Accessibility**: run axe on every public page and the SPA shell; fix contrast, labels, landmarks, focus order.
-- **Test coverage**: push backend coverage to ≥ 80% on changed code; SPA specs likewise. Add a minimal end-to-end smoke script (Node `fetch` against running server) covering register → login → book → view.
+- **Security**: add `helmet` middleware; tighten CORS to only `http://localhost:4200` (or env-configured origin); confirm the JWT cookie is `HttpOnly` + `SameSite=Lax`.
+- **Functional testing documentation**: produce the end-to-end test walkthrough (seed → `npm start` → browse public pages → customer login → admin CRUD trips in SPA) with screenshots for the SDD §User Interface section. This is the primary "Testing" rubric deliverable.
 - **Docs**:
-  - Update `README.md` with the new routes, roles, and scripts.
-  - Add an **ADR** at `docs/adr/ADR-001-dual-app-mvc-spa.md` confirming the dual-surface pattern and why we kept server-rendered HBS alongside an Angular admin.
-  - Refresh SDD §User Interface with screenshots of the delivered SPA (the section still has placeholders).
-- **Seed data**: populate realistic trips across all three categories so the UI demos well.
-- **Release**: merge `develop` → `release/1.0.0` → `main` with tag `v1.0.0` per GitFlow.
+  - Update `README.md` with all routes, seed instructions, and env variables.
+  - Refresh `docs/Travlr_Software_Design_Document_v2.md` §User Interface with SPA screenshots and the testing walkthrough.
+- **Release**: tag `v1.0.0` on `final-project` after all phases are merged.
 
 **Tasks.**
 
-1. `feat(security): add helmet, tighten cors, rate-limit auth endpoints`.
-2. `fix(a11y): address axe findings on public pages and admin shell`.
-3. `test(coverage): raise coverage to the AI_RULES threshold on changed code`.
-4. `docs(readme): update with new routes, scripts, and roles`.
-5. `docs(adr): ADR-001 dual-app MVC+SPA pattern`.
-6. `docs(sdd): fill in User Interface section with SPA screenshots`.
-7. `chore(data): refreshed seed with multi-category trips`.
-8. `chore(release): bump version, tag v1.0.0`.
+1. `feat(security): add helmet and confirm HttpOnly cookie settings`.
+2. `docs(readme): update with all routes, seed instructions, and env vars`.
+3. `docs(sdd): add SPA screenshots and testing walkthrough to User Interface section`.
+4. `chore(release): tag v1.0.0`.
 
-**Acceptance.** All ground-rule checks pass; manual UAT against the wireframes succeeds; rubric criteria (Customer-Facing Website, MVC Routing, Render Test Data, NoSQL Database, RESTful API, Testing, SPA, Security, Clear Communication) are each covered by demonstrable behavior.
+**Functional verification.** `npm start`; browse every public page; log in as customer; log in as admin in SPA; add/edit a trip; confirm no console errors and no stack traces leak in API responses.
 
-**DoD.** SUMMARY update → commit → merge per GitFlow.
+**Acceptance.** All rubric criteria (Customer-Facing Website, MVC Routing, Render Test Data, NoSQL Database, RESTful API, Testing, SPA, Security, Clear Communication) are demonstrably met; `v1.0.0` tag exists on `final-project`.
+
+**DoD.** SUMMARY update → commit → PR to `final-project` → tag `v1.0.0`.
 
 ---
 
@@ -405,7 +317,6 @@ After each phase, append a block to `SUMMARY.md`:
 
 **References:**
 - PLAN.md: Phase N
-- Related REQUIREMENTS: FR/NFR IDs
 - PRs: <link(s)>
 ```
 
@@ -413,14 +324,12 @@ After each phase, append a block to `SUMMARY.md`:
 
 ## Traceability
 
-| Phase | Primary REQUIREMENTS IDs covered                                          | Primary wireframe(s) |
-|-------|----------------------------------------------------------------------------|----------------------|
-| 0     | NFR-MAINT-002, NFR-MAINT-003, NFR-MAINT-004                                | —                    |
-| 1     | §9.1, §9.2, NFR-SEC-003                                                    | —                    |
-| 2     | FR-API-001, FR-API-002, FR-AUTH-001..003, FR-CAT-003, FR-BK-001, FR-ADM-005 | —                    |
-| 3     | G-1, G-2, NFR-A11Y-001                                                     | WF-1                 |
-| 4     | FR-CAT-001, FR-CAT-002, FR-CAT-003                                         | WF-2                 |
-| 5     | FR-ACC-001, FR-ACC-002                                                     | WF-3, WF-4           |
-| 6     | FR-CAT-004, FR-BK-001, FR-BK-002                                           | —                    |
-| 7     | FR-ADM-001..005, G-5                                                       | WF-5                 |
-| 8     | NFR-SEC-001..004, NFR-A11Y-001, NFR-MAINT-002, G-6                         | —                    |
+| Phase | Rubric criteria covered                                                          | Wireframe(s) |
+|-------|----------------------------------------------------------------------------------|--------------|
+| 0     | (tooling baseline)                                                               | —            |
+| 1     | NoSQL Database — models & seed for all collections                               | —            |
+| 2     | RESTful API — all content endpoints + trips CRUD                                 | —            |
+| 3     | Customer-Facing Website, MVC Routing, Render Test Data                           | WF-1..WF-2   |
+| 4     | SPA — admin trip CRUD verified end-to-end                                        | WF-5         |
+| 5     | Security — login form, customer registration, JWT session                        | WF-3, WF-4   |
+| 6     | Security (hardening), Testing (walkthrough), Clear Communication (docs + release) | —           |
