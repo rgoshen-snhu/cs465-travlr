@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const tripsController = require('../controllers/trips');
 const authController = require('../controllers/authentication');
+const roomsController = require('../controllers/rooms');
+const mealsController = require('../controllers/meals');
+const newsController = require('../controllers/news');
+const homeController = require('../controllers/home');
 const jwt = require('jsonwebtoken'); // Enable JSON Web Tokens
 
 // Method to authenticate the JWT token
@@ -50,5 +54,11 @@ router
     .route('/trips/:tripCode')
     .get(tripsController.tripsFindByCode) // GET: /trips/:tripCode - get a specific trip by code
     .put(authenticateJWT, tripsController.tripsUpdateTrip); // PUT: /trips/:tripCode - update a specific trip by code (not implemented yet)
+
+// Public content routes
+router.route('/rooms').get(roomsController.roomsList);
+router.route('/meals').get(mealsController.mealsList);
+router.route('/news').get(newsController.newsList);
+router.route('/home').get(homeController.homeContent);
 
 module.exports = router;
