@@ -127,3 +127,30 @@ same for blog posts.
 
 **References:**
 - PLAN.md: Phase 3 — Wire All Public Controllers to API
+
+---
+
+## [2026-04-13] Phase 4 Complete — Admin SPA: Complete & Verify
+
+**Change Type:** Fix
+**Scope:** Phase 4 — Admin SPA
+
+**Summary:**
+Angular SPA builds and runs without errors. Fixed four pre-existing bugs in the
+auth flow: `AuthResponse` constructor ignored its `token` parameter; JWT
+interceptor `startsWith('login')` never matched full URLs; login form
+incorrectly required a `name` field; `doLogin()` checked `isLoggedIn()` before
+the async HTTP response arrived (setTimeout race condition). All fixed.
+Add-trip and edit-trip forms confirmed wired to the correct API endpoints.
+Admin user seeded: `admin@travlr.com / Admin1234!` (idempotent — skips if
+admin already exists).
+
+**Issues encountered & resolution:**
+- No compile errors on initial build.
+- Login async race: replaced setTimeout with Observable subscription in
+  component — navigation now happens in `next()` callback.
+- Login form had a `name` field that blocked login since `name` is not a
+  login credential — removed from both component and template.
+
+**References:**
+- PLAN.md: Phase 4 — Admin SPA: Complete & Verify
