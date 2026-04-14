@@ -1,94 +1,63 @@
-<div class="col-md-8 col-lg-6">
-  <h2 class="mb-4">Add Trip</h2>
+<div class="col-md-4">
+    <h2 class="text-center">Add Trip</h2>
 
-  <form *ngIf="addForm" [formGroup]="addForm" (ngSubmit)="onSubmit()">
-
-    <div class="form-group mb-3">
-      <label for="code">ID</label>
-      <input type="text" id="code" class="form-control" formControlName="code" placeholder="Trip code"
-        [ngClass]="{ 'is-invalid': submitted && f['code'].errors }" />
-      <div *ngIf="submitted && f['code'].errors" class="invalid-feedback">
-        <span *ngIf="f['code'].errors['required']">Trip ID is required</span>
-      </div>
-    </div>
-
-    <div class="form-group mb-3">
-      <label for="name">Destination</label>
-      <input type="text" id="name" class="form-control" formControlName="name" placeholder="Destination name"
-        [ngClass]="{ 'is-invalid': submitted && f['name'].errors }" />
-      <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
-        <span *ngIf="f['name'].errors['required']">Destination is required</span>
-      </div>
-    </div>
-
-    <div class="form-group mb-3">
-      <label>Length of Stay</label>
-      <div class="d-flex gap-3">
-        <div class="flex-fill">
-          <label for="nights" class="form-label small text-muted">Nights</label>
-          <input type="number" id="nights" class="form-control" formControlName="nights" min="1" max="30"
-            [ngClass]="{ 'is-invalid': submitted && f['nights'].errors }" />
-          <div *ngIf="submitted && f['nights'].errors" class="invalid-feedback">
-            <span *ngIf="f['nights'].errors['required']">Required</span>
-          </div>
+    <form *ngIf="addForm" [formGroup]="addForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="code">Code:</label>
+            <input type="text" class="form-control" formControlName="code" placeholder="Code" [ngClass]="{'is-invalid': submitted && f['code'].errors}"/>
+            <div *ngIf="submitted && f['code'].errors">
+                <div *ngIf="f['code'].errors['required']">TripCode is required</div>
+            </div>
         </div>
-        <div class="flex-fill">
-          <label for="days" class="form-label small text-muted">Days</label>
-          <input type="number" id="days" class="form-control" formControlName="days" min="1" max="31"
-            [ngClass]="{ 'is-invalid': submitted && f['days'].errors }" />
-          <div *ngIf="submitted && f['days'].errors" class="invalid-feedback">
-            <span *ngIf="f['days'].errors['required']">Required</span>
-          </div>
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control" formControlName="name" placeholder="Name" [ngClass]="{'is-invalid': submitted && f['name'].errors}"/>
+            <div *ngIf="submitted && f['name'].errors">
+                <div *ngIf="f['name'].errors['required']">Trip Name is required</div>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <div class="form-group mb-3">
-      <label for="start">Start Date</label>
-      <input type="date" id="start" class="form-control" formControlName="start"
-        [ngClass]="{ 'is-invalid': submitted && f['start'].errors }" />
-      <div *ngIf="submitted && f['start'].errors" class="invalid-feedback">
-        <span *ngIf="f['start'].errors['required']">Start date is required</span>
-      </div>
-    </div>
-
-    <div class="form-group mb-3">
-      <label for="resort">Resort</label>
-      <input type="text" id="resort" class="form-control" formControlName="resort" placeholder="Resort name"
-        [ngClass]="{ 'is-invalid': submitted && f['resort'].errors }" />
-      <div *ngIf="submitted && f['resort'].errors" class="invalid-feedback">
-        <span *ngIf="f['resort'].errors['required']">Resort is required</span>
-      </div>
-    </div>
-
-    <div class="form-group mb-3">
-      <label for="perPerson">Per Person ($)</label>
-      <input type="text" id="perPerson" class="form-control" formControlName="perPerson" placeholder="e.g. 799.00"
-        [ngClass]="{ 'is-invalid': submitted && f['perPerson'].errors }" />
-      <div *ngIf="submitted && f['perPerson'].errors" class="invalid-feedback">
-        <span *ngIf="f['perPerson'].errors['required']">Per person price is required</span>
-      </div>
-    </div>
-
-    <div class="form-group mb-3">
-      <label for="image">Image Filename</label>
-      <input type="text" id="image" class="form-control" formControlName="image" placeholder="e.g. reef1.jpg"
-        [ngClass]="{ 'is-invalid': submitted && f['image'].errors }" />
-      <div *ngIf="submitted && f['image'].errors" class="invalid-feedback">
-        <span *ngIf="f['image'].errors['required']">Image filename is required</span>
-      </div>
-    </div>
-
-    <div class="form-group mb-4">
-      <label for="description">Description</label>
-      <textarea id="description" class="form-control" formControlName="description" rows="4" placeholder="Trip description"
-        [ngClass]="{ 'is-invalid': submitted && f['description'].errors }"></textarea>
-      <div *ngIf="submitted && f['description'].errors" class="invalid-feedback">
-        <span *ngIf="f['description'].errors['required']">Description is required</span>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save Trip</button>
-    <button type="button" class="btn btn-outline-secondary ms-2" routerLink="">Cancel</button>
-  </form>
+        <div class="form-group">
+            <label for="length">Length:</label>
+            <input type="text" class="form-control" formControlName="length" placeholder="Length" [ngClass]="{'is-invalid': submitted && f['length'].errors}"/>
+            <div *ngIf="submitted && f['length'].errors">
+                <div *ngIf="f['length'].errors['required']">Trip Length is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="start">Start:</label>
+            <input type="text" class="form-control" formControlName="start" placeholder="Start date" [ngClass]="{'is-invalid': submitted && f['start'].errors}"/>
+            <div *ngIf="submitted && f['start'].errors">
+                <div *ngIf="f['start'].errors['required']">Start date is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="resort">Resort:</label>
+            <input type="text" class="form-control" formControlName="resort" placeholder="Resort" [ngClass]="{'is-invalid': submitted && f['resort'].errors}"/>
+            <div *ngIf="submitted && f['resort'].errors">
+                <div *ngIf="f['resort'].errors['required']">Resort is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="perPerson">Per Person:</label>
+            <input type="text" class="form-control" formControlName="perPerson" placeholder="Per Person" [ngClass]="{'is-invalid': submitted && f['perPerson'].errors}"/>
+            <div *ngIf="submitted && f['perPerson'].errors">
+                <div *ngIf="f['perPerson'].errors['required']">Per Person price is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="image">Image:</label>
+            <input type="text" class="form-control" formControlName="image" placeholder="Image filename" [ngClass]="{'is-invalid': submitted && f['image'].errors}"/>
+            <div *ngIf="submitted && f['image'].errors">
+                <div *ngIf="f['image'].errors['required']">Image is required</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea class="form-control" formControlName="description" placeholder="Description" [ngClass]="{'is-invalid': submitted && f['description'].errors}"></textarea>
+            <div *ngIf="submitted && f['description'].errors">
+                <div *ngIf="f['description'].errors['required']">Description is required</div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-info">Save</button>
+    </form>
 </div>

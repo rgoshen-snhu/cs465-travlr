@@ -1,20 +1,21 @@
-<aside class="admin-sidebar">
-  <div class="sidebar-brand">
-    <span class="sidebar-brand-icon" aria-hidden="true">&#9993;</span>
-    <span class="sidebar-brand-text">My Project</span>
+<nav class="navbar navbar-expand navbar-light bg-light">
+  <a class="navbar-brand" href="#"><img src="/assets/images/logo.png"></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+    aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-link active" routerLink="">Trips<span class="
+sr-only ">(current)</span></a>
+    </div>
   </div>
-
-  <nav class="sidebar-nav" aria-label="Admin navigation">
-    <a class="sidebar-link" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      Travel
+  <div class="navbar-end ">
+    <a class="nav-item" routerLink="login" *ngIf="!isLoggedIn()">
+      <span class="has-icon-left">Log In</span>
     </a>
-    <a class="sidebar-link" routerLink="reservations" routerLinkActive="active">Reservations</a>
-    <a class="sidebar-link" routerLink="users" routerLinkActive="active">Users</a>
-    <a class="sidebar-link" routerLink="settings" routerLinkActive="active">Settings</a>
-  </nav>
-
-  <div class="sidebar-footer">
-    <a class="sidebar-link" routerLink="login" *ngIf="!isLoggedIn()">Log In</a>
-    <a class="sidebar-link" (click)="onLogout()" *ngIf="isLoggedIn()" role="button" tabindex="0">Log Out</a>
+    <a class="nav-item active" (click)="onLogout()" *ngIf="isLoggedIn()">
+      <span class="has-icon-left ">Log Out</span>
+    </a>
   </div>
-</aside>
+</nav>

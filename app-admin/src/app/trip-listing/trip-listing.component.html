@@ -1,41 +1,10 @@
-<div class="listing-header d-flex justify-content-between align-items-center mb-3">
-  <h2 class="mb-0">Travel</h2>
-  <button *ngIf="isLoggedIn()" (click)="addTrip()" class="btn btn-primary btn-sm">+ Add Trip</button>
+<div>
+  <div *ngIf="isLoggedIn()">
+    <button (click)="addTrip()" class="btn btn-info">Add Trip</button>
+  </div>
 </div>
-
-<div *ngIf="trips.length === 0" class="text-muted">{{ message }}</div>
-
-<table *ngIf="trips.length > 0" class="table table-bordered table-hover">
-  <thead class="thead-dark">
-    <tr>
-      <th scope="col">ID</th>
-      <th scope="col">Name</th>
-      <th scope="col">Length</th>
-      <th scope="col">Start</th>
-      <th scope="col">Resort</th>
-      <th scope="col">Per Person</th>
-      <ng-container *ngIf="isLoggedIn()">
-        <th scope="col">Edit</th>
-        <th scope="col"></th>
-      </ng-container>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let trip of trips">
-      <td>{{ trip.code }}</td>
-      <td>{{ trip.name }}</td>
-      <td>{{ trip.length }}</td>
-      <td>{{ trip.start | date:'mediumDate' }}</td>
-      <td>{{ trip.resort }}</td>
-      <td>{{ trip.perPerson | currency:'USD':'symbol':'1.2-2' }}</td>
-      <ng-container *ngIf="isLoggedIn()">
-        <td>
-          <button class="btn btn-sm btn-outline-secondary" (click)="editTrip(trip)">Edit</button>
-        </td>
-        <td>
-          <button class="btn btn-sm btn-outline-danger" aria-label="Delete trip">&#10005;</button>
-        </td>
-      </ng-container>
-    </tr>
-  </tbody>
-</table>
+<div class="row">
+  <div *ngFor="let trip of trips" class="col-md-4">
+    <app-trip-card [trip]="trip" class="card-deck mt-2"></app-trip-card>
+  </div>
+</div>
