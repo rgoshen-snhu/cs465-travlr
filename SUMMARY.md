@@ -98,3 +98,32 @@ callback — updated to async/await. All error responses normalized to
 
 **References:**
 - PLAN.md: Phase 2 — Complete the API Layer
+
+---
+
+## [2026-04-13] Phase 3 Complete — Wire All Public Controllers to API
+
+**Change Type:** Refactor
+**Scope:** Phase 3 — Public Controller Wiring
+
+**Summary:**
+Rewrote all four public-site controllers to fetch data from the API loopback
+instead of reading flat JSON files. All pages now serve live MongoDB content.
+No `require('fs')` or `readFileSync` calls remain in any `app-server/controllers/`
+file. All pages verified 200 with correct content in browser smoke test.
+
+**How:**
+Each controller follows the `travel.js` reference pattern exactly:
+`const port = process.env.PORT ?? 3000`, build endpoint URL, `async/await fetch`,
+`try/catch` with `console.error`, render with `{ title, navPage, ...data, message }`.
+The news controller uses `Promise.all` for three parallel fetches and maps
+`publishedAt → date` to match the HBS template. The home controller does the
+same for blog posts.
+
+**Issues encountered & resolution:**
+- News and index HBS templates reference `date` but the API stores `publishedAt`.
+  Resolved in the controller layer with a `.toLocaleDateString()` mapping — no
+  template changes required.
+
+**References:**
+- PLAN.md: Phase 3 — Wire All Public Controllers to API
