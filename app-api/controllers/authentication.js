@@ -19,7 +19,7 @@ const register = async (req, res) => {
 
     if (!response) {
         // Database return no user
-        return res.status(400).json(err);
+        return res.status(400).json({ message: 'Failed to save user' });
     } else {
         // Return new user token
         const token = user.generateJWT();

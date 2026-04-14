@@ -38,7 +38,7 @@ const tripsAddTrip = async (req, res) => {
     try {
         const savedTrip = await newTrip.save();
         if (!savedTrip) {
-            return res.status(400).json({ err });
+            return res.status(400).json({ message: 'Failed to save trip' });
         } else {
             res.status(201).json(savedTrip);
         }
