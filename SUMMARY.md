@@ -184,3 +184,30 @@ load and recombines them on submit — no API or schema changes required.
 **References:**
 - PLAN.md: Phase 4 — Admin SPA: Complete & Verify
 - docs/CS 465 Travlr Getaways Wireframe.pdf: WF-2, WF-5
+
+---
+
+## [2026-04-14] Phase 5 — Customer Auth (Backend)
+
+**Change Type:** Feature
+**Scope:** Phase 5 — Customer Auth
+
+**Summary:**
+Added customer-facing authentication backend to the Express public site.
+Created `app-server/controllers/auth.js` with `loginPost`, `signupPost`, and
+`logout` handlers that call the existing `POST /api/login` and
+`POST /api/register` loopback endpoints and issue/clear an HttpOnly,
+SameSite=Lax JWT cookie named `travlr-token`. Created
+`app-server/routes/auth.js` mounting `POST /login`, `POST /signup`, and
+`GET /logout`. Added session middleware to `app.js` that reads the cookie on
+every request, verifies it with `JWT_SECRET`, and sets `res.locals.isLoggedIn`
+and `res.locals.userName` for use in Handlebars views. Angular SPA auth
+(localStorage + Bearer header) is unchanged. HBS views for `/login` and
+`/signup` are deferred pending wireframe clarification.
+
+**Issues encountered & resolution:**
+- ESLint not installed in node_modules — ran `npm install` to restore; lint
+  exits with 0 errors (3 pre-existing warnings unchanged).
+
+**References:**
+- PLAN.md: Phase 5 — Customer Auth

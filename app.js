@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 
@@ -13,6 +14,7 @@ require('./app-api/models/db');
 var passport = require('passport');
 require('./app-api/config/passport');
 
+const authRouter = require('./app-server/routes/auth');
 const indexRouter = require('./app-server/routes/index');
 const usersRouter = require('./app-server/routes/users');
 const travelRouter = require('./app-server/routes/travel');
@@ -47,6 +49,26 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Session middleware — reads the HttpOnly JWT cookie and exposes
+// isLoggedIn / userName to every Handlebars view via res.locals.
+app.use((req, res, next) => {
+    const token = req.cookies['travlr-token'];
+    if (token && process.env.JWT_SECRET) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            res.locals.isLoggedIn = true;
+            res.locals.userName = decoded.name || decoded.email || '';
+        } catch {
+            res.locals.isLoggedIn = false;
+            res.locals.userName = null;
+        }
+    } else {
+        res.locals.isLoggedIn = false;
+        res.locals.userName = null;
+    }
+    next();
+});
+
 // Enable CORS for the Angular dev server.
 // OPTIONS must be handled explicitly so the browser preflight succeeds
 // before the actual POST/PUT request is sent.
@@ -61,6 +83,7 @@ app.use('/api', (req, res, next) => {
 });
 
 // Wireup routes to controllers
+app.use('/', authRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/travel', travelRouter);
