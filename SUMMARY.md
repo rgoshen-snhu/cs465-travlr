@@ -212,3 +212,30 @@ Phase 5 Views below).
 
 **References:**
 - PLAN.md: Phase 5 — Customer Auth
+
+---
+
+## [2026-04-15] Phase 5 — Customer Auth (Views)
+
+**Change Type:** Feature
+**Scope:** Phase 5 — Customer Auth
+
+**Summary:**
+Completed the customer-facing auth UI. Added `loginGet` and `signupGet`
+handlers to `app-server/controllers/auth.js`; wired `GET /login` and
+`GET /signup` in `app-server/routes/auth.js`. Created `login.hbs` and
+`signup.hbs` views following the existing `contact.hbs` table-form pattern
+(`#contents > .box > .body`, table layout, `.txtfield` inputs, `.btn` submit).
+Both views render an inline error message when `?error=` is present in the
+query string. Updated `header.hbs` to show `Logout (userName)` when
+`isLoggedIn` is truthy and `Login` otherwise, using the `res.locals` values
+already set by the session middleware in `app.js`.
+
+**Issues encountered & resolution:**
+
+- None. Instructor clarified wireframes are not to be used, unblocking the
+  views. Followed existing HBS patterns instead.
+
+**References:**
+
+- PLAN.md: Phase 5 — Customer Auth
