@@ -25,6 +25,15 @@
             <li {{#if (eq navPage 'contact')}}class="selected"{{/if}}>
                 <a href="/contact">Contact</a>
             </li>
+            {{#if isLoggedIn}}
+            <li>
+                <a href="/logout">Logout ({{userName}})</a>
+            </li>
+            {{else}}
+            <li {{#if (eq navPage 'login')}}class="selected"{{/if}}>
+                <a href="/login">Login</a>
+            </li>
+            {{/if}}
         </ul>
     </div>
 </div>

@@ -184,3 +184,58 @@ load and recombines them on submit — no API or schema changes required.
 **References:**
 - PLAN.md: Phase 4 — Admin SPA: Complete & Verify
 - docs/CS 465 Travlr Getaways Wireframe.pdf: WF-2, WF-5
+
+---
+
+## [2026-04-14] Phase 5 — Customer Auth (Backend)
+
+**Change Type:** Feature
+**Scope:** Phase 5 — Customer Auth
+
+**Summary:**
+Added customer-facing authentication backend to the Express public site.
+Created `app-server/controllers/auth.js` with `loginPost`, `signupPost`, and
+`logout` handlers that call the existing `POST /api/login` and
+`POST /api/register` loopback endpoints and issue/clear an HttpOnly,
+SameSite=Lax JWT cookie named `travlr-token`. Created
+`app-server/routes/auth.js` mounting `POST /login`, `POST /signup`, and
+`GET /logout`. Added session middleware to `app.js` that reads the cookie on
+every request, verifies it with `JWT_SECRET`, and sets `res.locals.isLoggedIn`
+and `res.locals.userName` for use in Handlebars views. Angular SPA auth
+(localStorage + Bearer header) is unchanged. HBS views for `/login` and
+`/signup` were deferred pending wireframe clarification (now resolved — see
+Phase 5 Views below).
+
+**Issues encountered & resolution:**
+- ESLint not installed in node_modules — ran `npm install` to restore; lint
+  exits with 0 errors (3 pre-existing warnings unchanged).
+
+**References:**
+- PLAN.md: Phase 5 — Customer Auth
+
+---
+
+## [2026-04-15] Phase 5 — Customer Auth (Views)
+
+**Change Type:** Feature
+**Scope:** Phase 5 — Customer Auth
+
+**Summary:**
+Completed the customer-facing auth UI. Added `loginGet` and `signupGet`
+handlers to `app-server/controllers/auth.js`; wired `GET /login` and
+`GET /signup` in `app-server/routes/auth.js`. Created `login.hbs` and
+`signup.hbs` views following the existing `contact.hbs` table-form pattern
+(`#contents > .box > .body`, table layout, `.txtfield` inputs, `.btn` submit).
+Both views render an inline error message when `?error=` is present in the
+query string. Updated `header.hbs` to show `Logout (userName)` when
+`isLoggedIn` is truthy and `Login` otherwise, using the `res.locals` values
+already set by the session middleware in `app.js`.
+
+**Issues encountered & resolution:**
+
+- None. Instructor clarified wireframes are not to be used, unblocking the
+  views. Followed existing HBS patterns instead.
+
+**References:**
+
+- PLAN.md: Phase 5 — Customer Auth

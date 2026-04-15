@@ -160,8 +160,41 @@ sidebar layout and form fields) wireframes.
 
 ---
 
+---
+
+## [2026-04-14] Feature: Phase 5 — Customer Auth (Backend)
+
+**Objective:**
+Add customer-facing authentication to the Express public site. Customers can
+log in and register via loopback calls to the existing API. Sessions are
+maintained with an HttpOnly JWT cookie. The Angular admin SPA auth (Phase 4)
+is unchanged.
+
+**Approach:**
+- Add `app-server/controllers/auth.js` — `loginPost`, `signupPost`, `logout`
+  handlers using the same async-fetch-loopback pattern as `travel.js`.
+  Sets/clears an HttpOnly, SameSite=Lax JWT cookie.
+- Add `app-server/routes/auth.js` — `POST /login`, `POST /signup`, `GET /logout`.
+- Add session middleware in `app.js` — reads JWT cookie on every request,
+  verifies it, sets `res.locals.isLoggedIn` and `res.locals.userName`.
+- Mount auth routes and session middleware in `app.js`.
+- HBS views for `/login` and `/signup` are deferred pending wireframe
+  clarification from instructor.
+
+**Tests:**
+- Functional: POST /login with seeded admin credentials returns redirect and
+  sets `travlr-token` cookie; GET /logout clears it.
+
+**Risks & Tradeoffs:**
+- Cookie name `travlr-token` matches the SPA's localStorage key name for
+  consistency, though they are separate stores.
+- JWT_SECRET must be set in .env; middleware fails open (isLoggedIn=false)
+  if secret is missing rather than crashing the server.
+
+**Status:** IN PROGRESS
+
+---
+
 ## Upcoming Phases
 
-- **Phase 5** — Customer auth (/login, /signup, /logout; JWT HttpOnly cookie)
-  + Reservation model, booking flow, /itinerary page, admin Reservations tab
 - **Phase 6** — Hardening, docs, SDD testing walkthrough, v1.0.0 tag

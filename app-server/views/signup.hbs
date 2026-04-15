@@ -1,0 +1,35 @@
+<div id="contents">
+	<div class="box">
+		<div>
+			<div id="contact" class="body">
+				<h1>Sign Up</h1>
+				{{#if error}}
+				<p class="error">{{error}}</p>
+				{{/if}}
+				<form action="/signup" method="post">
+					<table>
+						<tbody>
+							<tr>
+								<td>Name:</td>
+								<td><input type="text" name="name" value="" class="txtfield"></td>
+							</tr>
+							<tr>
+								<td>Email:</td>
+								<td><input type="email" name="email" value="" class="txtfield"></td>
+							</tr>
+							<tr>
+								<td>Password:</td>
+								<td><input type="password" name="password" value="" class="txtfield"></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td><input type="submit" value="Sign Up" class="btn"></td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+				<p><a href="/login">Already have an account? Log in</a></p>
+			</div>
+		</div>
+	</div>
+</div>
