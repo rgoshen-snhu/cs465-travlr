@@ -8,6 +8,24 @@ const COOKIE_OPTIONS = {
     sameSite: 'lax',
 };
 
+/* GET /login — render the login form */
+const loginGet = (req, res) => {
+    res.render('login', {
+        title: 'Login',
+        navPage: 'login',
+        error: req.query.error || null,
+    });
+};
+
+/* GET /signup — render the registration form */
+const signupGet = (req, res) => {
+    res.render('signup', {
+        title: 'Sign Up',
+        navPage: 'signup',
+        error: req.query.error || null,
+    });
+};
+
 /* POST /login — authenticate an existing customer */
 const loginPost = async (req, res) => {
     const { email, password } = req.body;
@@ -58,4 +76,4 @@ const logout = (req, res) => {
     res.redirect('/');
 };
 
-module.exports = { loginPost, signupPost, logout };
+module.exports = { loginGet, loginPost, signupGet, signupPost, logout };

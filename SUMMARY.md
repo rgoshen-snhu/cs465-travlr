@@ -203,7 +203,8 @@ SameSite=Lax JWT cookie named `travlr-token`. Created
 every request, verifies it with `JWT_SECRET`, and sets `res.locals.isLoggedIn`
 and `res.locals.userName` for use in Handlebars views. Angular SPA auth
 (localStorage + Bearer header) is unchanged. HBS views for `/login` and
-`/signup` are deferred pending wireframe clarification.
+`/signup` were deferred pending wireframe clarification (now resolved — see
+Phase 5 Views below).
 
 **Issues encountered & resolution:**
 - ESLint not installed in node_modules — ran `npm install` to restore; lint
