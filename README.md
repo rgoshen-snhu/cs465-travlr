@@ -100,9 +100,10 @@ The public site is available at `http://localhost:3000` and the API at `http://l
 
 ```bash
 cd app-admin
-npm start       # ng serve → http://localhost:4200
+ng serve       # ng serve → http://localhost:4200
 ```
 
+The Admin site is available at `http://localhost:4200`.
 The Angular app is configured (in `src/app/services/trip-data.service.ts`) to call the API at `http://localhost:3000/api`. CORS is enabled server-side for `http://localhost:4200` in `app.js`.
 
 ## API Reference
