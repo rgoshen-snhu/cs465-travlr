@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 
@@ -13,6 +14,7 @@ require('./app-api/models/db');
 var passport = require('passport');
 require('./app-api/config/passport');
 
+const authRouter = require('./app-server/routes/auth');
 const indexRouter = require('./app-server/routes/index');
 const usersRouter = require('./app-server/routes/users');
 const travelRouter = require('./app-server/routes/travel');
@@ -21,6 +23,7 @@ const mealsRouter = require('./app-server/routes/meals');
 const newsRouter = require('./app-server/routes/news');
 const aboutRouter = require('./app-server/routes/about');
 const contactRouter = require('./app-server/routes/contact');
+const customerRouter = require('./app-server/routes/customer');
 const apiRouter = require('./app-api/routes/index');
 const handlebars = require('hbs');
 
@@ -47,15 +50,41 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Enable CORS
+// Session middleware — reads the HttpOnly JWT cookie and exposes
+// isLoggedIn / userName to every Handlebars view via res.locals.
+app.use((req, res, next) => {
+    const token = req.cookies['travlr-token'];
+    if (token && process.env.JWT_SECRET) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            res.locals.isLoggedIn = true;
+            res.locals.userName = decoded.name || decoded.email || '';
+        } catch {
+            res.locals.isLoggedIn = false;
+            res.locals.userName = null;
+        }
+    } else {
+        res.locals.isLoggedIn = false;
+        res.locals.userName = null;
+    }
+    next();
+});
+
+// Enable CORS for the Angular dev server.
+// OPTIONS must be handled explicitly so the browser preflight succeeds
+// before the actual POST/PUT request is sent.
 app.use('/api', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:4200'); // Adjust this to your Angular app's URL
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization'); // Allow necessary headers
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Allow necessary HTTP methods
+  res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
   next();
 });
 
 // Wireup routes to controllers
+app.use('/', authRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/travel', travelRouter);
@@ -64,6 +93,7 @@ app.use('/meals', mealsRouter);
 app.use('/news', newsRouter);
 app.use('/about', aboutRouter);
 app.use('/contact', contactRouter);
+app.use('/', customerRouter);
 app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler

@@ -39,6 +39,14 @@ img {
 	margin-bottom: 20px;
 	margin-left: 49px;
 }
+/** User Greeting **/
+#user-greeting {
+	float: right;
+	margin-right: 49px;
+	margin-top: 38px;
+	color: #5a4535;
+	font: 13px Arial, Helvetica, sans-serif;
+}
 /** Navigation **/
 #navigation {
 	background: url(../images/bg-navigation.png) no-repeat;
@@ -49,18 +57,17 @@ img {
 	padding: 1px;
 }
 #navigation ul {
-	display: inline-block;
+	display: flex;
 	width: 860px;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 #navigation li {
-	float: left;
+	flex: 1;
 	background-position: 0 -118px;
 	background-repeat: no-repeat;
 	height: 49px;
-	width: 122px;
 	margin: 0;
 	padding-left: 1px;
 	text-align: center;
@@ -335,6 +342,22 @@ hr {
 	border: 1px solid #2c9688;
 	margin-left: 15px;
 }
+/** Book Trip button **/
+a.btn-book {
+	display: inline-block;
+	margin-top: 10px;
+	padding: 6px 16px;
+	background: #2c9688;
+	color: #fff;
+	font: bold 13px Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	text-decoration: none;
+	border-radius: 3px;
+	letter-spacing: 0.5px;
+}
+a.btn-book:hover {
+	background: #316e66;
+}
 /** News **/
 #news {
 	display: inline-block;
@@ -453,6 +476,60 @@ hr {
 #contact p span {
 	display: block;
 	text-transform: uppercase;
+}
+/** Auth (Login / Sign Up) **/
+#auth {
+	text-align: center;
+	padding: 20px 0 30px;
+}
+#auth form {
+	display: inline-block;
+	text-align: left;
+	color: #5a4535;
+	border: 1px solid #5a4535;
+	padding: 19px 24px 14px;
+}
+#auth form table {
+	border-collapse: collapse;
+}
+#auth form table td {
+	padding-bottom: 8px;
+}
+#auth table td:first-child {
+	font-size: 14px;
+	line-height: 30px;
+	width: 90px;
+	text-transform: uppercase;
+}
+#auth form input.txtfield {
+	height: 17px;
+	line-height: 17px;
+	width: 220px;
+	border: 1px solid #5a4535;
+	border-radius: 2px;
+}
+#auth input.btn {
+	background: #2c9688;
+	color: #fff;
+	cursor: pointer;
+	height: 30px;
+	padding: 0 16px;
+	border: 0;
+	border-radius: 3px;
+	font: bold 13px Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+#auth input.btn:hover {
+	background: #316e66;
+}
+#auth p {
+	margin-top: 14px;
+	font-size: 13px;
+}
+#auth p.error {
+	color: #c0392b;
+	margin-bottom: 8px;
 }
 /*------------------------------ FOOTER ------------------------------*/
 #footer {
