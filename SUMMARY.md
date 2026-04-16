@@ -315,3 +315,60 @@ picked up without a manual server restart.
 
 **References:**
 - PLAN.md: Phase 6 — Customer Experience
+
+---
+
+## [2026-04-15] Phase 6 — Admin SPA UI Fixes (Bootstrap 5 + Polish)
+
+**Change Type:** Fix
+**Scope:** Phase 6 — Admin SPA (branch: `feature/ui-fixes`)
+
+**Summary:**
+Fixed all Bootstrap 4 → 5 regressions and visual polish issues in the
+Angular admin SPA.
+
+**Bootstrap 5 compatibility fixes:**
+- `sr-only` → `visually-hidden` on the Trips nav link span; "(current)"
+  was rendering as visible text.
+- `data-toggle`/`data-target` → `data-bs-toggle`/`data-bs-target` on the
+  hamburger button so mobile collapse works correctly.
+- `card-deck` (removed in Bootstrap 5) stripped from `trip-listing`;
+  replaced with Bootstrap 5 `row-cols-1 row-cols-md-3 g-3` grid.
+- `form-group` (removed in Bootstrap 5) replaced with `mb-3` + `form-label`
+  on both login form fields; added `mt-3` wrapper around Sign In button.
+
+**Layout / styling fixes:**
+- `navbar-end` (Bulma class, not Bootstrap) replaced with
+  `navbar-nav ms-auto pe-3` inside `navbar-collapse` — Log In / Log Out
+  now right-aligned with proper edge spacing.
+- Email input missing `form-control` class added; now matches password
+  field styling.
+- Navbar logo constrained to `height="60"` to prevent full native-size
+  render.
+- `Add Trip` button wrapper given `my-3` margin for breathing room below
+  the navbar.
+- `h-100` added to `.card` for equal-height cards, plus `:host { display:
+  flex; height: 100% }` in `trip-card.component.css` so the Angular
+  component wrapper stretches to fill the grid column — without this the
+  inner `h-100` had no reference height.
+
+**New feature:**
+- `getUserName()` added to `NavbarComponent` (reads name from JWT via
+  `AuthenticationService.getCurrentUser()`). When logged in, navbar shows
+  "Welcome, {name} | Log Out" instead of just "Log Out".
+
+**Title fix:**
+- `index.html` `<title>` corrected from "Travlr Gateways Admin" →
+  "Travlr Getaways Admin".
+
+**Files changed:**
+`app-admin/src/app/navbar/navbar.component.html`,
+`app-admin/src/app/navbar/navbar.component.ts`,
+`app-admin/src/app/login/login.component.html`,
+`app-admin/src/app/trip-listing/trip-listing.component.html`,
+`app-admin/src/app/trip-card/trip-card.component.html`,
+`app-admin/src/app/trip-card/trip-card.component.css`,
+`app-admin/src/index.html`
+
+**References:**
+- PLAN.md: Phase 6 — Admin SPA UI Fixes
