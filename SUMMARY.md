@@ -372,3 +372,21 @@ Angular admin SPA.
 
 **References:**
 - PLAN.md: Phase 6 — Admin SPA UI Fixes
+
+---
+
+## [2026-04-16] Phase 7 — UI & Bug Fixes (branch: feature/phase-7-bugfixes)
+
+**Change Type:** Fix
+**Scope:** Admin SPA — add-trip, edit-trip, navbar; public-site logout verified
+
+**What was done:**
+- Added `mt-3` Bootstrap margin to the Save button in both `add-trip.component.html` and `edit-trip.component.html` so the button no longer sits flush against the last textarea.
+- Injected `Router` into `NavbarComponent` and added `this.router.navigate(['/'])` after `authenticationService.logout()` so the admin SPA redirects to the trip list on logout instead of staying on the same page.
+- Verified public-side logout (`GET /logout` in `app-server/controllers/auth.js`) already calls `res.redirect('/')` — no change required.
+
+**Issues encountered & resolution:**
+- None.
+
+**References:**
+- PLAN.md: Phase 7 — Hardening & Release
