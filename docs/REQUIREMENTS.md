@@ -1,10 +1,57 @@
 # Travlr Getaways — Requirements
 
+- [Travlr Getaways — Requirements](#travlr-getaways--requirements)
+  - [Document Control](#document-control)
+  - [1. Purpose and Scope of This Document](#1-purpose-and-scope-of-this-document)
+  - [2. Product Summary](#2-product-summary)
+  - [3. Users and Stakeholders](#3-users-and-stakeholders)
+    - [3.1 Traveler (Customer)](#31-traveler-customer)
+    - [3.2 Administrator](#32-administrator)
+    - [3.3 Platform Owner (Travlr Getaways)](#33-platform-owner-travlr-getaways)
+  - [4. Goals](#4-goals)
+  - [5. In Scope / Out of Scope](#5-in-scope--out-of-scope)
+    - [5.1 In Scope](#51-in-scope)
+    - [5.2 Deferred to Roadmap (§16)](#52-deferred-to-roadmap-16)
+    - [5.3 Out of Scope](#53-out-of-scope)
+  - [6. Assumptions](#6-assumptions)
+  - [7. Functional Requirements](#7-functional-requirements)
+    - [7.1 Customer-Facing Website](#71-customer-facing-website)
+    - [7.2 Customer Accounts](#72-customer-accounts)
+    - [7.3 Admin Console (Angular SPA)](#73-admin-console-angular-spa)
+    - [7.4 API](#74-api)
+    - [7.5 Authentication \& Authorization](#75-authentication--authorization)
+  - [8. Non-Functional Requirements](#8-non-functional-requirements)
+    - [8.1 Security](#81-security)
+    - [8.2 Accessibility](#82-accessibility)
+    - [8.3 Maintainability and Testability](#83-maintainability-and-testability)
+    - [8.4 Portability](#84-portability)
+    - [8.5 Performance (Pragmatic)](#85-performance-pragmatic)
+  - [9. Data Requirements](#9-data-requirements)
+    - [9.1 Existing Entities (in code)](#91-existing-entities-in-code)
+    - [9.2 Entities Implied by the Scenario](#92-entities-implied-by-the-scenario)
+    - [9.3 Entities Modeled in the SDD but Not in Scope for This Release](#93-entities-modeled-in-the-sdd-but-not-in-scope-for-this-release)
+  - [10. Constraints](#10-constraints)
+  - [11. Open Questions](#11-open-questions)
+  - [12. Risks](#12-risks)
+  - [13. Acceptance](#13-acceptance)
+    - [13.1 Definition of Ready (per requirement)](#131-definition-of-ready-per-requirement)
+    - [13.2 Definition of Done (per requirement)](#132-definition-of-done-per-requirement)
+  - [14. Traceability](#14-traceability)
+  - [15. Glossary](#15-glossary)
+  - [16. Roadmap](#16-roadmap)
+    - [16.1 Trip Detail Page](#161-trip-detail-page)
+    - [16.2 Search and Filter](#162-search-and-filter)
+    - [16.3 Customer Itineraries](#163-customer-itineraries)
+    - [16.4 Reservations](#164-reservations)
+    - [16.5 Admin — Customer Base Maintenance](#165-admin--customer-base-maintenance)
+
+
 ## Document Control
 
 | Version | Date       | Author      | Status | Notes                                                                                                   |
 |---------|------------|-------------|--------|---------------------------------------------------------------------------------------------------------|
 | 0.1     | 2026-04-13 | Rick Goshen | Draft  | Initial requirements derived from the CS 465 client scenario, the existing SDD v1.1, and the codebase. |
+| 0.2     | 2026-04-16 | Rick Goshen | Draft  | Moved unimplemented requirements to §16 Roadmap; renumbered §7 subsections accordingly.                 |
 
 ---
 
@@ -13,6 +60,8 @@
 This document captures the software requirements for the Travlr Getaways web application. It translates the client scenario (see `docs/Project Guidelines and Rubric.md`) and the design decisions already made in `docs/Travlr_Software_Design_Document_v2.md` into concrete, testable requirements.
 
 Anything not grounded in the scenario, the SDD, the existing code, or the project's global engineering rules is listed under Section 11, **Open Questions**, rather than stated as a requirement.
+
+Requirements not implemented in this release are tracked in Section 16, **Roadmap**.
 
 ---
 
@@ -68,15 +117,20 @@ The goals below map directly to the rubric criteria in `docs/Project Guidelines 
 ### 5.1 In Scope
 
 - Public browsing of published trip packages.
-- Search/filter of trips by location and price point (from the client scenario).
 - Customer account creation and authentication (from the client scenario).
-- Customer ability to view their itineraries (from the client scenario).
-- Booking a reservation against a published trip (from the client scenario).
 - Admin CRUD of trip packages with pricing.
-- Admin management of the customer base.
 - JWT-based API authentication with secure endpoints for mutating operations.
 
-### 5.2 Out of Scope
+### 5.2 Deferred to Roadmap (§16)
+
+The following items are required by the client scenario but not implemented in this release:
+
+- Search/filter of trips by location and price point.
+- Customer ability to view their itineraries.
+- Booking a reservation against a published trip.
+- Admin management of the customer base.
+
+### 5.3 Out of Scope
 
 - Mobile native applications.
 - Supplier / GDS integrations (Amadeus, Sabre, etc.).
@@ -107,24 +161,7 @@ The public site must display the available trip packages with the fields defined
 
 - *Given* trip records exist in MongoDB, *when* a visitor loads the Travel page, *then* the trip list renders using Handlebars, drawing data from the REST API (rubric: Customer-Facing Website, Render Test Data).
 
-**FR-CAT-002 — Trip detail** `[S]`
-
-A visitor can view the full detail of a single trip, addressable by its trip code.
-
-- Data source: `GET /api/trips/:tripCode`.
-
-**FR-CAT-003 — Search by location and price** `[M]`
-
-A visitor can narrow the list of trips by location and by price point.
-
-- Required by the client scenario.
-- Acceptance: applying location and/or price filters updates the displayed trip list without requiring page structure changes.
-
-**FR-CAT-004 — View itineraries** `[S]`
-
-A logged-in traveler can view their upcoming itineraries (the trips they have booked).
-
-- Required by the client scenario ("customers must also be able to visit our website regularly before their trip to see their itineraries").
+> FR-CAT-002 (trip detail page), FR-CAT-003 (search/filter), and FR-CAT-004 (itinerary view) are deferred — see §16 Roadmap.
 
 ### 7.2 Customer Accounts
 
@@ -142,21 +179,7 @@ A registered customer can authenticate through `POST /api/login` using email and
 - On success the server issues a JWT.
 - On failure the server responds with `401` and a generic error message.
 
-### 7.3 Booking / Reservations
-
-**FR-BK-001 — Book a reservation** `[M]`
-
-A logged-in customer can book a reservation against a published trip package.
-
-- Required by the client scenario.
-- The booking must persist in MongoDB and be associated with the customer who made it.
-- Full payment processing is not specified in the scenario; see Open Question Q-1.
-
-**FR-BK-002 — Booking confirmation view** `[S]`
-
-After booking, the customer sees a confirmation with the trip details and a reference they can use to identify the booking in their itinerary list.
-
-### 7.4 Admin Console (Angular SPA)
+### 7.3 Admin Console (Angular SPA)
 
 **FR-ADM-001 — Admin login** `[M]`
 
@@ -177,14 +200,9 @@ An administrator can create a new trip through the SPA, which sends `POST /api/t
 
 An administrator can edit an existing trip through the SPA, which sends `PUT /api/trips/:tripCode` with the authenticated admin's JWT.
 
-**FR-ADM-005 — Customer base maintenance** `[S]`
+> FR-ADM-005 (customer base maintenance) is deferred — see §16 Roadmap.
 
-An administrator can view and manage the customer accounts maintained by the application.
-
-- Required by the client scenario ("maintain a customer base").
-- Scope of "manage" (edit, deactivate, delete) is captured as Open Question Q-2.
-
-### 7.5 API
+### 7.4 API
 
 **FR-API-001 — RESTful API surface** `[M]`
 
@@ -198,7 +216,7 @@ The backend exposes a RESTful API under `/api` that supports at minimum:
 
 All API responses use JSON. Error responses include a `message` field suitable for display by the client.
 
-### 7.6 Authentication & Authorization
+### 7.5 Authentication & Authorization
 
 **FR-AUTH-001 — JWT issuance** `[M]`
 
@@ -255,7 +273,7 @@ These NFRs are scoped to what the project's global engineering rules (`AI_RULES.
 
 ### 9.2 Entities Implied by the Scenario
 
-- **Booking** — ties a customer to a trip with whatever reservation details the booking flow captures. Not yet in the codebase; needed to satisfy FR-BK-001 and FR-CAT-004. Detailed schema is an Open Question (Q-4).
+- **Booking** — ties a customer to a trip with whatever reservation details the booking flow captures. Not yet in the codebase; needed to satisfy FR-BK-001 and FR-CAT-004 (see §16 Roadmap). Detailed schema is an Open Question (Q-4).
 
 ### 9.3 Entities Modeled in the SDD but Not in Scope for This Release
 
@@ -318,7 +336,7 @@ These items are unresolved and should be confirmed with the client (or course in
 | Requirement set | Source                                                                                |
 |-----------------|---------------------------------------------------------------------------------------|
 | G-1..G-6        | `docs/Project Guidelines and Rubric.md` — Directions and Rubric                       |
-| FR-CAT-*, FR-ACC-*, FR-BK-*, FR-ADM-*, FR-API-*, FR-AUTH-* | Client scenario in the Rubric doc + existing code in `app-api/` and `app-admin/` |
+| FR-CAT-*, FR-ACC-*, FR-ADM-*, FR-API-*, FR-AUTH-* | Client scenario in the Rubric doc + existing code in `app-api/` and `app-admin/` |
 | NFR-SEC-*, NFR-A11Y-*, NFR-MAINT-*  | `~/.claude/CLAUDE.md` (`AI_RULES.md`)                                |
 | C-1..C-3        | `docs/Travlr_Software_Design_Document_v2.md` — Executive Summary and Design Constraints |
 | §9.3 (deferred entities) | SDD Class Diagram                                                            |
@@ -332,3 +350,64 @@ These items are unresolved and should be confirmed with the client (or course in
 - **JWT** — JSON Web Token, used for API authentication.
 - **MVC** — Model-View-Controller, the architectural pattern used on the customer-facing Express site.
 - **MoSCoW** — Prioritization scheme: Must, Should, Could, Won't.
+
+---
+
+## 16. Roadmap
+
+The following requirements are defined by the client scenario but were not implemented in this release. They are tracked here for future development.
+
+### 16.1 Trip Detail Page
+
+**FR-CAT-002 — Trip detail** `[S]`
+
+A visitor can view the full detail of a single trip, addressable by its trip code.
+
+- Data source: `GET /api/trips/:tripCode`.
+- Requires a new public route (`GET /travel/:tripCode`), controller handler, and HBS view.
+
+### 16.2 Search and Filter
+
+**FR-CAT-003 — Search by location and price** `[M]`
+
+A visitor can narrow the list of trips by location and by price point.
+
+- Required by the client scenario.
+- Acceptance: applying location and/or price filters updates the displayed trip list without requiring full page reloads.
+- Implementation note: the API `GET /api/trips` will need to support optional query parameters (e.g. `?resort=` and `?maxPrice=`); the HBS travel page will need a filter form.
+
+### 16.3 Customer Itineraries
+
+**FR-CAT-004 — View itineraries** `[S]`
+
+A logged-in traveler can view their upcoming itineraries (the trips they have booked).
+
+- Required by the client scenario.
+- Depends on FR-BK-001 (booking persistence). The `/my-trips` route currently renders a placeholder page.
+
+### 16.4 Reservations
+
+**FR-BK-001 — Book a reservation** `[M]`
+
+A logged-in customer can book a reservation against a published trip package.
+
+- Required by the client scenario.
+- The booking must persist in MongoDB and be associated with the customer who made it.
+- Requires a new `Booking` Mongoose model (see §9.2 and Open Question Q-1 and Q-4).
+- The `/book/:tripCode` route currently renders a placeholder page.
+
+**FR-BK-002 — Booking confirmation view** `[S]`
+
+After booking, the customer sees a confirmation with the trip details and a reference they can use to identify the booking in their itinerary list.
+
+- Depends on FR-BK-001.
+
+### 16.5 Admin — Customer Base Maintenance
+
+**FR-ADM-005 — Customer base maintenance** `[S]`
+
+An administrator can view and manage the customer accounts maintained by the application.
+
+- Required by the client scenario ("maintain a customer base").
+- Scope of "manage" (edit, deactivate, delete) is captured as Open Question Q-2.
+- Requires new admin SPA components (Users list, user detail/edit) and corresponding API endpoints.

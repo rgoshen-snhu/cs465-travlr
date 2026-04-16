@@ -2,6 +2,14 @@
 
 A full-stack travel booking demo built for **SNHU CS-465 Full Stack Development**. Travlr serves a customer-facing site rendered with Express + Handlebars and an administrator single-page application (Angular 17) that manages trips through a shared JSON API backed by MongoDB.
 
+## Screenshots
+
+**Admin SPA — Trip List (authenticated)**
+![Admin SPA trip list](./docs/images/spa_03_trip_list_authenticated.png)
+
+**Admin SPA — Edit Trip**
+![Admin SPA edit trip](./docs/images/spa_07_edit_trip.png)
+
 ## Architecture
 
 - **Pattern**: Dual-app monolith. One Node/Express process hosts the public website and a REST API under `/api`. The public site follows the **Model–View–Controller (MVC)** pattern: Mongoose schemas in `app-api/models/` act as the Model layer, Handlebars templates in `app-server/views/` are the Views, and `app-server/controllers/` contain the Controllers that bridge them. A separate Angular SPA (`app-admin/`) is developed independently and consumes the API over CORS.
@@ -101,16 +109,22 @@ The Angular app is configured (in `src/app/services/trip-data.service.ts`) to ca
 
 All endpoints are prefixed with `/api`.
 
-| Method | Path                    | Auth     | Description                       |
-| ------ | ----------------------- | -------- | --------------------------------- |
-| POST   | `/register`             | Public   | Create a new user, returns JWT    |
-| POST   | `/login`                | Public   | Authenticate, returns JWT         |
-| GET    | `/trips`                | Public   | List all trips                    |
-| POST   | `/trips`                | Bearer   | Create a new trip                 |
-| GET    | `/trips/:tripCode`      | Public   | Fetch a trip by its code          |
-| PUT    | `/trips/:tripCode`      | Bearer   | Update a trip by its code         |
+| Method | Path                    | Auth     | Description                                        |
+| ------ | ----------------------- | -------- | -------------------------------------------------- |
+| POST   | `/register`             | Public   | Create a new customer user, returns JWT            |
+| POST   | `/login`                | Public   | Authenticate, returns JWT                          |
+| GET    | `/trips`                | Public   | List all trips                                     |
+| POST   | `/trips`                | Bearer   | Create a new trip                                  |
+| GET    | `/trips/:tripCode`      | Public   | Fetch a trip by its code                           |
+| PUT    | `/trips/:tripCode`      | Bearer   | Update a trip by its code                          |
+| GET    | `/rooms`                | Public   | List all room types                                |
+| GET    | `/meals`                | Public   | List all meals                                     |
+| GET    | `/news`                 | Public   | List all news articles (optional `?type=` filter)  |
+| GET    | `/home`                 | Public   | Fetch the home page content document               |
 
 Protected requests must include an `Authorization: Bearer <token>` header.
+
+> **Note:** Admin accounts are seeded — run `npm run seed` to create `admin@travlr.com / Admin1234!`. Customer accounts are self-registered via `POST /api/register` or the `/signup` page.
 
 ## Admin SPA Routes
 
@@ -122,6 +136,24 @@ Protected requests must include an `Authorization: Bearer <token>` header.
 | `/login`      | `LoginComponent`       | Authenticate                  |
 
 A JWT interceptor attaches the stored token to outbound API calls; a `Storage` wrapper centralizes `localStorage` access for the admin shell.
+
+## Public Site Routes
+
+| Method | Path                | Auth            | Description                                  |
+| ------ | ------------------- | --------------- | -------------------------------------------- |
+| GET    | `/`                 | Public          | Home page                                    |
+| GET    | `/travel`           | Public          | Browse all trip packages                     |
+| GET    | `/rooms`            | Public          | Room types listing                           |
+| GET    | `/meals`            | Public          | Meals listing                                |
+| GET    | `/news`             | Public          | News and travel tips                         |
+| GET    | `/contact`          | Public          | Contact form page                            |
+| GET    | `/login`            | Public          | Customer login form                          |
+| POST   | `/login`            | Public          | Authenticate; sets HttpOnly JWT cookie       |
+| GET    | `/signup`           | Public          | Customer registration form                   |
+| POST   | `/signup`           | Public          | Register new customer; sets HttpOnly JWT cookie |
+| GET    | `/logout`           | Public          | Clear session cookie; redirect to `/`        |
+| GET    | `/my-trips`         | Cookie (JWT)    | Customer itineraries placeholder             |
+| GET    | `/book/:tripCode`   | Cookie (JWT)    | Book a trip placeholder                      |
 
 ## Testing
 

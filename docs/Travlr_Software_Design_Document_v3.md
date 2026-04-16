@@ -4,7 +4,7 @@
 
 ## CS 465 Project Software Design Document
 
-Version 1.0
+Version 1.2
 
 ---
 
@@ -31,6 +31,7 @@ Version 1.0
 |---------|----------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1.0     | 03/18/26 | Rick Goshen | Completed Executive Summary, Design Constraints, and System Architecture View (Component Diagram) sections for initial client delivery.                                      |
 | 1.1     | 04/02/26 | Rick Goshen | Completed System Architecture View (Sequence Diagram, Class Diagram) and Interfaces (API Endpoints) sections.                                                               |
+| 1.2     | 04/16/26 | Rick Goshen | Completed The User Interface section with Angular vs. Express structural comparison, SPA functionality overview, and end-to-end testing walkthrough with screenshots.        |
 
 ---
 
@@ -133,6 +134,100 @@ The three booking classes round out the diagram. HotelBooking, FlightBooking, an
 
 ## The User Interface
 
-\<Insert screenshots from the development of the SPA development to show the following: (1) a unique trip, added by you, (2) the Edit screen, and (3) the Update screen.\>
+### Angular Project Structure vs. Express Project Structure
 
-\<Summarize the Angular project structure and how it compares to the Express project structure. Be sure to describe the rich functionality provided by the SPA compared to a simple web application interaction. Describe the process of testing to make sure the SPA is working with the API to GET and PUT data in the database.\>
+The Travlr Getaways application uses two distinct front-end structures that reflect the different rendering strategies chosen for each audience. Understanding how these structures differ helps explain why the Angular SPA and the Express customer site behave so differently even though they share the same backend API.
+
+The Express customer-facing application follows a Model-View-Controller (MVC) pattern organized around server-side rendering. The project structure reflects this: controllers live in `app-server/controllers/`, route definitions in `app-server/routes/`, and Handlebars (HBS) templates in `app-server/views/`. When a customer requests a page, the server controller fetches data from the API, passes it to the matching HBS template, and delivers a fully-rendered HTML page to the browser. Every navigation action triggers a complete round trip to the server — a new HTTP request, a new page rendered on the server, and a full page reload in the browser. This model is straightforward and works well for a public-facing site where search engine visibility and broad device compatibility matter most.
+
+The Angular admin SPA is structured very differently. It lives entirely in `app-admin/src/app/` and is organized around components, services, models, and routing — all of which run in the browser. Each piece of the UI is an Angular component (for example, `trip-listing`, `trip-card`, `add-trip`, `edit-trip`, `login`, and `navbar`), each with its own TypeScript class, HTML template, and CSS file. Services in `app-admin/src/app/services/` handle all HTTP communication with the Express API — the `TripDataService` manages trip CRUD operations and the `AuthenticationService` manages JWT storage and validation. A JWT interceptor in `app-admin/src/app/utils/jwt.interceptor.ts` automatically attaches the stored token to every outgoing HTTP request that needs authentication, so components never have to manage that detail themselves.
+
+The most significant structural difference is where rendering happens. In Express, the server owns rendering; in Angular, the browser owns it. Once the Angular SPA loads, navigating between the trip list, the add-trip form, and the edit-trip form never reloads the page — the Angular router handles those transitions entirely within the browser. Only actual data operations (loading trips, saving a new trip, updating an existing one) cross the network to the Express API. This architecture gives the admin interface a faster, more fluid feel compared to the full-page reloads of the customer site.
+
+### SPA Rich Functionality
+
+The Angular SPA provides several capabilities that would be difficult or inefficient to replicate in the server-rendered customer site:
+
+**Client-side routing.** The Angular router maps URL paths (`/`, `/login`, `/add-trip`, `/edit-trip`) to components and handles transitions without server involvement. The browser URL updates and the back button works, but no page reload occurs.
+
+**Reactive forms with real-time validation.** Both the add-trip and edit-trip forms use Angular's `ReactiveFormsModule`. Required field validation runs in the browser as the administrator fills out the form. If validation fails on submit, error messages appear inline next to each field without any server round trip.
+
+**JWT interceptor.** The `JwtInterceptor` automatically reads the stored token from `localStorage` and injects it as a `Bearer` authorization header on every HTTP request. This means the add-trip and edit-trip components do not need any authentication logic — the interceptor handles it transparently.
+
+**Conditional rendering.** The navbar and trip cards use Angular's `*ngIf` directive to show or hide elements based on authentication state. When no administrator is logged in, the Log In link is visible and Edit Trip buttons are hidden. Once logged in, the greeting, Log Out link, Add Trip button, and Edit Trip buttons all appear without a page reload.
+
+**Component reusability.** The `TripCardComponent` is a self-contained unit that renders a single trip card. The `TripListingComponent` renders all trips by iterating over the API response and instantiating one `TripCardComponent` per record. Adding a new trip automatically re-renders the list because the component fetches fresh data from the API after a successful save.
+
+### Testing the SPA with the API
+
+The following walkthrough demonstrates that the SPA correctly exchanges data with the Express API using both GET and PUT (and POST) operations. Each step is documented with a screenshot.
+
+#### Step 1 — Seed the database and start the servers
+
+Before testing, the database must be seeded and both servers must be running.
+
+```bash
+# From the project root
+npm run seed        # populates MongoDB with initial trip data
+npm start           # starts the Express API + customer site on port 3000
+
+# In a second terminal
+cd app-admin
+ng serve            # starts the Angular SPA on port 4200
+```
+
+#### Step 2 — View the trip list (GET /api/trips) — unauthenticated
+
+Opening `http://localhost:4200` loads the SPA and immediately issues `GET /api/trips` to retrieve all trips. The results are displayed as cards. No login is required to view trips.
+
+![SPA trip list — unauthenticated](./images/spa_01_trip_list.png)
+
+*Figure 1: The admin SPA landing page showing all trips retrieved from `GET /api/trips`. The Log In link is visible in the navbar; no Edit Trip buttons are shown.*
+
+#### Step 3 — Log in (POST /api/login)
+
+Clicking **Log In** in the navbar navigates to the login form. The administrator enters their credentials and clicks **Sign In!**, which triggers `POST /api/login` via `TripDataService.login()`. On success, the API returns a JWT which `AuthenticationService` stores in `localStorage`. The Angular router then navigates back to the trip list.
+
+![SPA login form](./images/spa_02_login.png)
+
+*Figure 2: The admin login form. Email and password fields are provided. Submitting calls `POST /api/login`.*
+
+![SPA trip list — authenticated](./images/spa_03_trip_list_authenticated.png)
+
+*Figure 3: The trip list after successful login. The navbar now shows "Welcome, Travlr Admin" and a Log Out link. The Add Trip button and Edit Trip buttons are visible.*
+
+#### Step 4 — Add a new trip (POST /api/trips)
+
+Clicking **Add Trip** navigates to the add-trip form. The administrator fills in all required fields — code, name, length, start date, resort, per person price, image filename, and description — then clicks **Save**. The `TripDataService.addTrip()` method issues `POST /api/trips` with the JWT attached by the interceptor. On success, the API creates the record in MongoDB and the SPA navigates back to the trip list, which re-fetches from `GET /api/trips` and displays the new entry.
+
+![Add Trip form — empty](./images/spa_04_add_trip_empty.png)
+
+*Figure 4: The Add Trip form before data entry. All fields are empty and the Save button is present with proper spacing.*
+
+![Add Trip form — filled](./images/spa_05_add_trip_filled.png)
+
+*Figure 5: The Add Trip form populated with data for "Sunset Reef Escape". The image filename `reef3.jpg` references an existing asset.*
+
+![Trip list after add](./images/spa_06_trip_added.png)
+
+*Figure 6: The trip list after saving. "Sunset Reef Escape" now appears as the fourth card, confirming that `POST /api/trips` created the record in MongoDB and `GET /api/trips` returned it.*
+
+#### Step 5 — Edit an existing trip (GET /api/trips/:tripCode + PUT /api/trips/:tripCode)
+
+Clicking **Edit Trip** on the "Sunset Reef Escape" card navigates to the edit-trip form. The SPA calls `GET /api/trips/REEF0001` to retrieve the current record and pre-populates the form fields. The administrator updates the per person price from $1,299 to $1,499 and clicks **Save**. The `TripDataService.updateTrip()` method issues `PUT /api/trips/REEF0001` with the updated data and the JWT. On success, the API updates the record in MongoDB using `findOneAndUpdate` and the SPA navigates back to the refreshed trip list.
+
+![Edit Trip form — pre-populated](./images/spa_07_edit_trip.png)
+
+*Figure 7: The Edit Trip form pre-populated via `GET /api/trips/REEF0001`. All fields reflect the values stored in MongoDB.*
+
+![Edit Trip form — price updated](./images/spa_08_edit_trip_updated.png)
+
+*Figure 8: The Edit Trip form with the per person price changed from $1,299 to $1,499, ready to submit via `PUT /api/trips/REEF0001`.*
+
+![Trip list after update](./images/spa_09_trip_updated.png)
+
+*Figure 9: The trip list after saving the edit. "Sunset Reef Escape" now shows $1,499.00 per person, confirming that `PUT /api/trips/REEF0001` persisted the change in MongoDB.*
+
+### Summary
+
+The testing walkthrough above demonstrates the complete data cycle: seeding MongoDB, retrieving all trips via `GET /api/trips`, authenticating via `POST /api/login`, creating a new trip via `POST /api/trips`, reading a single trip via `GET /api/trips/:tripCode`, and updating it via `PUT /api/trips/:tripCode`. At each step the SPA reflects the current state of the database without a page reload, confirming that the Angular application and the Express API are correctly integrated end-to-end.
