@@ -335,7 +335,13 @@ hr {
 }
 /** Dive Site **/
 #sites li {
-	padding-bottom: 0;
+	padding-bottom: 30px;
+	min-height: 287px;
+}
+#sites li::after {
+	content: '';
+	display: table;
+	clear: both;
 }
 #sites li img {
 	float: right;
