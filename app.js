@@ -23,6 +23,7 @@ const mealsRouter = require('./app-server/routes/meals');
 const newsRouter = require('./app-server/routes/news');
 const aboutRouter = require('./app-server/routes/about');
 const contactRouter = require('./app-server/routes/contact');
+const customerRouter = require('./app-server/routes/customer');
 const apiRouter = require('./app-api/routes/index');
 const handlebars = require('hbs');
 
@@ -92,6 +93,7 @@ app.use('/meals', mealsRouter);
 app.use('/news', newsRouter);
 app.use('/about', aboutRouter);
 app.use('/contact', contactRouter);
+app.use('/', customerRouter);
 app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler

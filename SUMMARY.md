@@ -239,3 +239,136 @@ already set by the session middleware in `app.js`.
 **References:**
 
 - PLAN.md: Phase 5 — Customer Auth
+
+---
+
+## [2026-04-15] Phase 6 — Customer Experience (UI Fixes + Placeholder Routes)
+
+**Change Type:** Feature
+**Scope:** Phase 6 — Customer Experience (branch: `feature/ui-fixes`)
+
+**Summary:**
+Resolved all visible UI regressions and added the authenticated-customer
+navigation features required by the project rubric.
+
+### UI Fixes
+
+**Nav bar overflow (LOGIN wrapping to second row)**
+`#navigation li` had a fixed `width: 122px`; with 8 items (after adding
+My Trips + Logout) the total exceeded the 860px container. Replaced the
+float-based layout with CSS flexbox (`display: flex` on `#navigation ul`,
+`flex: 1` on `li`), letting all items share the 860px equally with no
+overflow or stray spacing.
+
+**Login / signup form floating right**
+Both `login.hbs` and `signup.hbs` were using `id="contact"`, inheriting
+`#contact form { float: right; height: 320px }`. Changed both to `id="auth"`
+and added a new `#auth` CSS block: centered container, `display: inline-block`
+form, no fixed height.
+
+**SEND sprite on auth buttons**
+`#contact input.btn` used the `btn-send.png` sprite, overriding button text
+and showing an empty image tile on the login/signup submit buttons. The new
+`#auth input.btn` rule replaces the sprite with a solid teal background
+(`#2c9688`) matching the site color scheme.
+
+**Welcome greeting**
+Added `#user-greeting` div in `header.hbs` that renders "Welcome, {{userName}}"
+top-right when `isLoggedIn` is truthy. Added matching CSS (float right,
+`margin-right: 49px`, `margin-top: 38px`).
+
+**Logout overflow**
+The logout nav item was "Logout ({{userName}})" — too wide for the flex tab.
+Simplified to "Logout".
+
+**nodemon not watching HBS files**
+Created `nodemon.json` with `"ext": "js,json,hbs"` so template changes are
+picked up without a manual server restart.
+
+### New Placeholder Routes
+
+**My Trips**
+- `app-server/views/my-trips.hbs` — placeholder page with coming-soon message
+- `app-server/controllers/customer.js` — `myTrips` handler
+- `app-server/routes/customer.js` — `GET /my-trips`
+- `app.js` — registered `customerRouter` before `/api`
+- `header.hbs` — "My Trips" nav item visible only when `isLoggedIn`; supports
+  active-state highlight via `navPage`
+
+**Book Trip**
+- `app-server/views/book-trip.hbs` — placeholder page displaying the trip code
+  and contact link
+- `app-server/controllers/customer.js` — `bookTrip` handler (renders with
+  `tripCode` from URL param)
+- `app-server/routes/customer.js` — `GET /book/:tripCode`
+- `app-server/views/travel.hbs` — "Book Trip" button per card, guarded by
+  `{{#if @root.isLoggedIn}}` (required to reach `res.locals` from inside the
+  `{{#each trips}}` block); styled with `.btn-book` teal CSS class
+
+**Issues encountered & resolution:**
+- `{{#if isLoggedIn}}` inside `{{#each trips}}` silently evaluates to false
+  because Handlebars shifts context to the current item. Fixed with
+  `{{#if @root.isLoggedIn}}` to access the root `res.locals` scope.
+- nodemon not reloading on `.hbs` changes — fixed with `nodemon.json`.
+- Login/signup form floating right due to inherited `#contact` CSS — fixed by
+  switching to `id="auth"` and new CSS block.
+
+**References:**
+- PLAN.md: Phase 6 — Customer Experience
+
+---
+
+## [2026-04-15] Phase 6 — Admin SPA UI Fixes (Bootstrap 5 + Polish)
+
+**Change Type:** Fix
+**Scope:** Phase 6 — Admin SPA (branch: `feature/ui-fixes`)
+
+**Summary:**
+Fixed all Bootstrap 4 → 5 regressions and visual polish issues in the
+Angular admin SPA.
+
+**Bootstrap 5 compatibility fixes:**
+- `sr-only` → `visually-hidden` on the Trips nav link span; "(current)"
+  was rendering as visible text.
+- `data-toggle`/`data-target` → `data-bs-toggle`/`data-bs-target` on the
+  hamburger button so mobile collapse works correctly.
+- `card-deck` (removed in Bootstrap 5) stripped from `trip-listing`;
+  replaced with Bootstrap 5 `row-cols-1 row-cols-md-3 g-3` grid.
+- `form-group` (removed in Bootstrap 5) replaced with `mb-3` + `form-label`
+  on both login form fields; added `mt-3` wrapper around Sign In button.
+
+**Layout / styling fixes:**
+- `navbar-end` (Bulma class, not Bootstrap) replaced with
+  `navbar-nav ms-auto pe-3` inside `navbar-collapse` — Log In / Log Out
+  now right-aligned with proper edge spacing.
+- Email input missing `form-control` class added; now matches password
+  field styling.
+- Navbar logo constrained to `height="60"` to prevent full native-size
+  render.
+- `Add Trip` button wrapper given `my-3` margin for breathing room below
+  the navbar.
+- `h-100` added to `.card` for equal-height cards, plus `:host { display:
+  flex; height: 100% }` in `trip-card.component.css` so the Angular
+  component wrapper stretches to fill the grid column — without this the
+  inner `h-100` had no reference height.
+
+**New feature:**
+- `getUserName()` added to `NavbarComponent` (reads name from JWT via
+  `AuthenticationService.getCurrentUser()`). When logged in, navbar shows
+  "Welcome, {name} | Log Out" instead of just "Log Out".
+
+**Title fix:**
+- `index.html` `<title>` corrected from "Travlr Gateways Admin" →
+  "Travlr Getaways Admin".
+
+**Files changed:**
+`app-admin/src/app/navbar/navbar.component.html`,
+`app-admin/src/app/navbar/navbar.component.ts`,
+`app-admin/src/app/login/login.component.html`,
+`app-admin/src/app/trip-listing/trip-listing.component.html`,
+`app-admin/src/app/trip-card/trip-card.component.html`,
+`app-admin/src/app/trip-card/trip-card.component.css`,
+`app-admin/src/index.html`
+
+**References:**
+- PLAN.md: Phase 6 — Admin SPA UI Fixes
