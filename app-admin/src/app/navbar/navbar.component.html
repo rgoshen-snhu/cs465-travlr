@@ -8,8 +8,9 @@
     <div class="navbar-nav">
       <a class="nav-link active" routerLink="">Trips<span class="visually-hidden">(current)</span></a>
     </div>
-    <div class="navbar-nav ms-auto">
+    <div class="navbar-nav ms-auto pe-3">
       <a class="nav-link" routerLink="login" *ngIf="!isLoggedIn()">Log In</a>
+      <span class="navbar-text me-3" *ngIf="isLoggedIn()">Welcome, {{ getUserName() }}</span>
       <a class="nav-link" style="cursor:pointer" (click)="onLogout()" *ngIf="isLoggedIn()">Log Out</a>
     </div>
   </div>
