@@ -2,6 +2,9 @@
     <div id="logo">
         <a href="/"><img src="images/logo.png" alt="LOGO" height="100" width="200"></a>
     </div>
+    {{#if isLoggedIn}}
+    <div id="user-greeting">Welcome, {{userName}}</div>
+    {{/if}}
     <div id="navigation">
         <ul>
             <li {{#if (eq navPage 'home')}}class="selected"{{/if}}>
@@ -26,8 +29,11 @@
                 <a href="/contact">Contact</a>
             </li>
             {{#if isLoggedIn}}
+            <li {{#if (eq navPage 'my-trips')}}class="selected"{{/if}}>
+                <a href="/my-trips">My Trips</a>
+            </li>
             <li>
-                <a href="/logout">Logout ({{userName}})</a>
+                <a href="/logout">Logout</a>
             </li>
             {{else}}
             <li {{#if (eq navPage 'login')}}class="selected"{{/if}}>

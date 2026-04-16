@@ -239,3 +239,79 @@ already set by the session middleware in `app.js`.
 **References:**
 
 - PLAN.md: Phase 5 — Customer Auth
+
+---
+
+## [2026-04-15] Phase 6 — Customer Experience (UI Fixes + Placeholder Routes)
+
+**Change Type:** Feature
+**Scope:** Phase 6 — Customer Experience (branch: `feature/ui-fixes`)
+
+**Summary:**
+Resolved all visible UI regressions and added the authenticated-customer
+navigation features required by the project rubric.
+
+### UI Fixes
+
+**Nav bar overflow (LOGIN wrapping to second row)**
+`#navigation li` had a fixed `width: 122px`; with 8 items (after adding
+My Trips + Logout) the total exceeded the 860px container. Replaced the
+float-based layout with CSS flexbox (`display: flex` on `#navigation ul`,
+`flex: 1` on `li`), letting all items share the 860px equally with no
+overflow or stray spacing.
+
+**Login / signup form floating right**
+Both `login.hbs` and `signup.hbs` were using `id="contact"`, inheriting
+`#contact form { float: right; height: 320px }`. Changed both to `id="auth"`
+and added a new `#auth` CSS block: centered container, `display: inline-block`
+form, no fixed height.
+
+**SEND sprite on auth buttons**
+`#contact input.btn` used the `btn-send.png` sprite, overriding button text
+and showing an empty image tile on the login/signup submit buttons. The new
+`#auth input.btn` rule replaces the sprite with a solid teal background
+(`#2c9688`) matching the site color scheme.
+
+**Welcome greeting**
+Added `#user-greeting` div in `header.hbs` that renders "Welcome, {{userName}}"
+top-right when `isLoggedIn` is truthy. Added matching CSS (float right,
+`margin-right: 49px`, `margin-top: 38px`).
+
+**Logout overflow**
+The logout nav item was "Logout ({{userName}})" — too wide for the flex tab.
+Simplified to "Logout".
+
+**nodemon not watching HBS files**
+Created `nodemon.json` with `"ext": "js,json,hbs"` so template changes are
+picked up without a manual server restart.
+
+### New Placeholder Routes
+
+**My Trips**
+- `app-server/views/my-trips.hbs` — placeholder page with coming-soon message
+- `app-server/controllers/customer.js` — `myTrips` handler
+- `app-server/routes/customer.js` — `GET /my-trips`
+- `app.js` — registered `customerRouter` before `/api`
+- `header.hbs` — "My Trips" nav item visible only when `isLoggedIn`; supports
+  active-state highlight via `navPage`
+
+**Book Trip**
+- `app-server/views/book-trip.hbs` — placeholder page displaying the trip code
+  and contact link
+- `app-server/controllers/customer.js` — `bookTrip` handler (renders with
+  `tripCode` from URL param)
+- `app-server/routes/customer.js` — `GET /book/:tripCode`
+- `app-server/views/travel.hbs` — "Book Trip" button per card, guarded by
+  `{{#if @root.isLoggedIn}}` (required to reach `res.locals` from inside the
+  `{{#each trips}}` block); styled with `.btn-book` teal CSS class
+
+**Issues encountered & resolution:**
+- `{{#if isLoggedIn}}` inside `{{#each trips}}` silently evaluates to false
+  because Handlebars shifts context to the current item. Fixed with
+  `{{#if @root.isLoggedIn}}` to access the root `res.locals` scope.
+- nodemon not reloading on `.hbs` changes — fixed with `nodemon.json`.
+- Login/signup form floating right due to inherited `#contact` CSS — fixed by
+  switching to `id="auth"` and new CSS block.
+
+**References:**
+- PLAN.md: Phase 6 — Customer Experience

@@ -11,6 +11,9 @@
 						<p>
 							{{{this.description}}}
 						</p>
+						{{#if @root.isLoggedIn}}
+						<a href="/book/{{this.code}}" class="btn-book">Book Trip</a>
+						{{/if}}
 					</li>
 					{{/each}}
 				</ul>

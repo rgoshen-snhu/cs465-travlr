@@ -65,7 +65,8 @@ Every phase must be read against these sources. If a phase conflicts with any of
 | 3     | Wire All Public Controllers to API                       | `feature/phase-3-public-wiring`     |
 | 4     | Admin SPA — Complete & Verify                            | `feature/phase-4-admin-spa`         |
 | 5     | Customer Auth (Login, Signup)                            | `feature/phase-5-customer-auth`     |
-| 6     | Hardening & Release                                      | `feature/phase-6-hardening`         |
+| 6     | Customer Experience (UI Fixes + Placeholder Routes)      | `feature/ui-fixes`                  |
+| 7     | Hardening & Release                                      | `feature/phase-7-hardening`         |
 
 ---
 
@@ -267,7 +268,37 @@ The UI matches the five wireframe screens. The visual PDF is the primary source;
 
 ---
 
-## Phase 6 — Hardening & Release
+## Phase 6 — Customer Experience (UI Fixes + Placeholder Routes)
+
+**Goal.** Polish the customer-facing UI and surface placeholder routes for features required by the client scenario (itineraries, booking) so reviewers can see they belong in the product even though the full implementation is deferred.
+
+**In scope.**
+
+- **Nav fixes**: resize nav tabs from 122 px to flex layout so the Login/Logout tab fits on one row; add `nodemon.json` to watch HBS files.
+- **Login/Signup UI**: replace `id="contact"` with `id="auth"` on both pages to escape the float-right contact form CSS; add centered `#auth` CSS; replace `btn-send.png` sprite with a teal text button showing the correct label.
+- **User greeting**: show `Welcome, <name>` in the header top-right when logged in; logout link shows just "Logout".
+- **My Trips nav item**: visible only when `isLoggedIn`; routes to `/my-trips` which renders a placeholder HBS page.
+- **Book Trip button**: appears on each trip card on the `/travel` page; routes to `/book/:tripCode` which renders a placeholder HBS page.
+- **Placeholder pages**: `my-trips.hbs` and `book-trip.hbs` — styled consistently with the site, display a "coming soon" message.
+
+**Follow existing patterns.** New routes in `app-server/routes/` and controllers following the `auth.js` / `travel.js` patterns. Placeholder views use `#contents > .box > div > #auth.body` layout.
+
+**Tasks.**
+
+1. `fix(ui): flex nav, nodemon hbs watch, auth page layout, teal button`.
+2. `feat(customer): my-trips placeholder route and view`.
+3. `feat(customer): book-trip placeholder route and view`.
+4. `refactor(views): add My Trips nav item for logged-in customers`.
+
+**Functional verification.** Browse every public page; log in as customer; confirm "Welcome, Name" shows, LOGOUT is in the nav bar, MY TRIPS appears; click MY TRIPS and BOOK — confirm placeholder pages render without errors.
+
+**Acceptance.** Nav is single-row for both logged-in and logged-out states; login/signup pages are centered with correct button text; placeholder routes return 200 with styled pages.
+
+**DoD.** SUMMARY update → commit → PR `feature/ui-fixes` into `final-project`.
+
+---
+
+## Phase 7 — Hardening & Release
 
 **Goal.** Security hardening, documentation completion, and tagging the final release.
 
@@ -324,12 +355,13 @@ After each phase, append a block to `SUMMARY.md`:
 
 ## Traceability
 
-| Phase | Rubric criteria covered                                                          | Wireframe(s) |
-|-------|----------------------------------------------------------------------------------|--------------|
-| 0     | (tooling baseline)                                                               | —            |
-| 1     | NoSQL Database — models & seed for all collections                               | —            |
-| 2     | RESTful API — all content endpoints + trips CRUD                                 | —            |
-| 3     | Customer-Facing Website, MVC Routing, Render Test Data                           | WF-1..WF-2   |
-| 4     | SPA — admin trip CRUD verified end-to-end                                        | WF-5         |
-| 5     | Security — login form, customer registration, JWT session                        | WF-3, WF-4   |
-| 6     | Security (hardening), Testing (walkthrough), Clear Communication (docs + release) | —           |
+| Phase | Rubric criteria covered                                                           | Wireframe(s) |
+|-------|-----------------------------------------------------------------------------------|--------------|
+| 0     | (tooling baseline)                                                                | —            |
+| 1     | NoSQL Database — models & seed for all collections                                | —            |
+| 2     | RESTful API — all content endpoints + trips CRUD                                  | —            |
+| 3     | Customer-Facing Website, MVC Routing, Render Test Data                            | WF-1..WF-2   |
+| 4     | SPA — admin trip CRUD verified end-to-end                                         | WF-5         |
+| 5     | Security — login form, customer registration, JWT session                         | WF-3, WF-4   |
+| 6     | Customer-Facing Website — UI polish + placeholder customer routes                 | WF-1..WF-4   |
+| 7     | Security (hardening), Testing (walkthrough), Clear Communication (docs + release) | —            |
