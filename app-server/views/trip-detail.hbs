@@ -1,0 +1,19 @@
+<div id="contents">
+	<div class="box">
+		<div>
+			<div class="body">
+				<h1>{{trip.name}}</h1>
+				<img src="/images/{{trip.image}}" alt="{{trip.name}}">
+				<p>{{{trip.description}}}</p>
+				<p><strong>Resort:</strong> {{trip.resort}}</p>
+				<p><strong>Length:</strong> {{trip.length}}</p>
+				<p><strong>Departure:</strong> {{trip.start}}</p>
+				<p><strong>Per Person:</strong> ${{trip.perPerson}}</p>
+				{{#if @root.isLoggedIn}}
+				<a href="/book/{{trip.code}}" class="btn-book">Book Trip</a>
+				{{/if}}
+				<p><a href="/travel">Back to All Trips</a></p>
+			</div>
+		</div>
+	</div>
+</div>

@@ -30,4 +30,20 @@ const travel = async function (req, res) {
     }
 };
 
-module.exports = { travel };
+/* GET single trip detail view */
+const tripDetail = async function (req, res) {
+    const { tripCode } = req.params;
+    try {
+        const response = await fetch(`${tripsEndpoint}/${tripCode}`, options);
+        if (!response.ok) {
+            return res.status(404).render('error', { message: 'Trip not found', error: { status: 404 } });
+        }
+        const trip = await response.json();
+        res.render('trip-detail', { title: trip.name, navPage: 'travel', trip });
+    } catch (error) {
+        console.error('Error fetching trip detail:', error);
+        res.status(500).send('Error fetching trip detail');
+    }
+};
+
+module.exports = { travel, tripDetail };
